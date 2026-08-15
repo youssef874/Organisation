@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">organisation</string>
+    <string name="logo_content_description">Logo</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="error_wrong_password">Wrong password</string>
+    <string name="error_wrong_user">Wrong user</string>
+    <string name="error_server_error">Server error</string>
+    <string name="error_unknown_error">Unknown error</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="button_connect">Connect</string>
+    <string name="connection_status">Connection errors</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="something_went_wrong">Something went wrong</string>
+</resources>

@@ -1,0 +1,9 @@
+package com.example.orgdatabase
+
+import com.youssefmkh.logger.Logger
+
+internal object LoggerHelper {
+
+    val logger: Logger = Logger.Default.newBuild()
+        .addClassToIgnore(LoggerHelper::class.java.name).build()
+}
