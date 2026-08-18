@@ -90,7 +90,8 @@ class LoginScreenTest {
 
         loadingIndicator.assertExists()
 
-        loginButton.assertDoesNotExist()
+        loginButton.assertExists()
+        buttonText.assertDoesNotExist()
     }
 
     @Test

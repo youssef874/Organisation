@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +29,7 @@ import com.organisation.OrganisationPreviews
 import com.organisation.R
 import com.organisation.domaine.account.model.AccountType
 import com.organisation.domaine.commun.model.SyncErrorType
+import com.organisation.ui.common.components.OrgCircularLoader
 import com.organisation.ui.splash.model.SplashEvent
 import com.organisation.ui.splash.model.SplashTestTags
 import com.organisation.ui.splash.model.SplashUiState
@@ -100,7 +100,7 @@ fun SplashScreenContent(
         Spacer(modifier = Modifier.height(32.dp))
 
         if (uiState.isLoading) {
-            CircularProgressIndicator(
+            OrgCircularLoader(
                 modifier = Modifier.testTag(SplashTestTags.LOADING_INDICATOR)
             )
         }

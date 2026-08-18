@@ -251,6 +251,19 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="702643315">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="OPPO CPH2625" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="804075418">
           <value>
             <AndroidTestResultsTableState>

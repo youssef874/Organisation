@@ -15,11 +15,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.organisation.OrganisationPreviews
 import com.organisation.R
+import com.organisation.ui.common.components.OrgCircularLoader
+import com.organisation.ui.common.components.OrgOutlineTextField
+import com.organisation.ui.common.components.OrgPrimaryButton
 import com.organisation.ui.login.model.ConnectionState
 import com.organisation.ui.login.model.LoginErrorState
 import com.organisation.ui.login.model.LoginEvent
@@ -111,58 +111,60 @@ fun LoginScreenContent(
             )
         }
 
-        OutlinedTextField(
-            value = uiState.email,
-            onValueChange = onEmailChanged,
-            label = { Text(stringResource(R.string.email_label)) },
-            enabled = isInputEnabled,
+        OrgOutlineTextField(
+            text = uiState.email,
+            onValueChanged = onEmailChanged,
+            label = { Text(stringResource(R.string.email_label))},
+            isEnabled = isInputEnabled,
+            singleLine = true,
+            shape = MaterialTheme.shapes.large,
+            leadingIcon = { Icon(Icons.Rounded.Person, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag(LoginTestTags.EMAIL_TEXT_FIELD),
-            leadingIcon = { Icon(Icons.Rounded.Person, contentDescription = null) },
-            singleLine = true,
-            shape = MaterialTheme.shapes.large
+                .testTag(LoginTestTags.EMAIL_TEXT_FIELD)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = uiState.password,
-            onValueChange = onPasswordChanged,
-            label = { Text(stringResource(R.string.password_label)) },
-            enabled = isInputEnabled,
-            visualTransformation = PasswordVisualTransformation(),
+        OrgOutlineTextField(
+            text = uiState.password,
+            onValueChanged = onPasswordChanged,
+            label = { Text(stringResource(R.string.password_label))},
+            isEnabled = isInputEnabled,
+            singleLine = true,
+            shape = MaterialTheme.shapes.large,
+            leadingIcon = { Icon(Icons.Rounded.Lock, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag(LoginTestTags.PASSWORD_TEXT_FIELD),
-            leadingIcon = { Icon(Icons.Rounded.Lock, contentDescription = null) },
-            singleLine = true,
-            shape = MaterialTheme.shapes.large
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (uiState.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .size(24.dp)
-                    .testTag(LoginTestTags.LOADING_INDICATOR),
-                strokeWidth = 2.dp
-            )
-        } else {
-            Button(
-                onClick = onLoginClick,
-                enabled = isButtonEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(LoginTestTags.LOGIN_BUTTON)
-            ) {
-                Text(
-                    stringResource(R.string.button_connect),
-                    modifier = Modifier.testTag(LoginTestTags.LOGIN_BUTTON_TEXT)
-                )
+        OrgPrimaryButton(
+            onClick = onLoginClick,
+            isButtonEnabled = isButtonEnabled && !uiState.isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(LoginTestTags.LOGIN_BUTTON),
+            content = {
+                if (uiState.isLoading) {
+                    OrgCircularLoader(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .testTag(LoginTestTags.LOADING_INDICATOR),
+                        strokeWidth = 2.dp
+
+                    )
+                } else {
+                    Text(
+                        stringResource(R.string.button_connect),
+                        modifier = Modifier.testTag(LoginTestTags.LOGIN_BUTTON_TEXT)
+                    )
+                }
             }
-        }
+        )
 
         if (!isConnectionActive || uiState.errorState != null) {
             val message = if (!isConnectionActive) {

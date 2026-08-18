@@ -18,23 +18,23 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="SplashTestWithViewModel">
+      <SelectionState runConfigName="LoginScreenTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="splashScreen_authenticated_syncSuccess_isCorrect_account_type_employee()">
+      <SelectionState runConfigName="loginClick_givenValidCredentials_navigatesToSplash()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="splashScreen_authenticated_syncSuccess_and_account_type_employee_navigateToWorkerHome()">
+      <SelectionState runConfigName="LoginTestWithViewModel">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="splashScreen_authenticated_syncSuccess_and_account_type_employee_navigateToManagerHome()">
+      <SelectionState runConfigName="Dark Mode - LoginPreviewConnectedContent">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="splashScreen_authenticated_syncSuccess_and_account_type_employee_navigateToBossHome()">
+      <SelectionState runConfigName="Dark Mode - LoginPreviewAllConfigsContent">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>

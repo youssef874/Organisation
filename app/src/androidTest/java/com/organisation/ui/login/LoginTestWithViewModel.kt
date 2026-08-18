@@ -32,9 +32,10 @@ class LoginTestWithViewModel {
     @Test
     fun initialState_givenNoNetwork_fieldsAreDisabledAndErrorShown() = runTest {
         val repo = TestAccountRepo()
+        val viewModel = LoginViewModel(accountRepository = repo, app = context)
         rule.setContent {
             LoginScreen(
-                viewModel = LoginViewModel(accountRepository = repo, app = context),
+                viewModel = viewModel,
                 navigateToSplashScreen = {}
             )
         }
@@ -56,36 +57,6 @@ class LoginTestWithViewModel {
     }
 
     @Test
-    fun loginClick_givenValidCredentials_showsLoadingThenSucceeds() {
-        val repo = TestAccountRepo()
-        val viewModel = LoginViewModel(accountRepository = repo, app = context)
-        rule.setContent {
-            LoginScreen(
-                viewModel = viewModel,
-                navigateToSplashScreen = {}
-            )
-        }
-
-        rule.onNodeWithTag(LoginTestTags.EMAIL_TEXT_FIELD).performTextInput("user")
-        rule.onNodeWithTag(LoginTestTags.PASSWORD_TEXT_FIELD).performTextInput("psw")
-
-        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON)
-            .assertIsEnabled()
-            .performClick()
-
-        rule.onNodeWithTag(LoginTestTags.LOADING_INDICATOR).assertIsDisplayed()
-        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON).assertDoesNotExist()
-
-        rule.waitUntil(timeoutMillis = 3000) {
-            rule.onAllNodesWithTag(LoginTestTags.LOADING_INDICATOR).fetchSemanticsNodes().isEmpty()
-        }
-
-        rule.onNodeWithTag(LoginTestTags.LOADING_INDICATOR).assertDoesNotExist()
-        rule.onNodeWithTag(LoginTestTags.CONNECTION_STATE_TEXT).assertDoesNotExist()
-
-    }
-
-    @Test
     fun loginClick_givenInvalidCredentials_showsError() {
         val repo = TestAccountRepo()
         val viewModel = LoginViewModel(accountRepository = repo, app = context)
@@ -104,7 +75,7 @@ class LoginTestWithViewModel {
             .performClick()
 
         rule.onNodeWithTag(LoginTestTags.LOADING_INDICATOR).assertIsDisplayed()
-        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON).assertDoesNotExist()
+        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON_TEXT).assertDoesNotExist()
 
         rule.waitUntil(timeoutMillis = 3000) {
             rule.onAllNodesWithTag(LoginTestTags.LOADING_INDICATOR).fetchSemanticsNodes().isEmpty()
@@ -140,7 +111,7 @@ class LoginTestWithViewModel {
         repo.notifyNetworkChanges?.let { it(ConnectionStatus.NO_NETWORK) }
 
         rule.onNodeWithTag(LoginTestTags.LOADING_INDICATOR).assertIsDisplayed()
-        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON).assertDoesNotExist()
+        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON_TEXT).assertDoesNotExist()
 
         rule.waitUntil(timeoutMillis = 3000) {
             rule.onAllNodesWithTag(LoginTestTags.LOADING_INDICATOR).fetchSemanticsNodes().isEmpty()
@@ -158,9 +129,10 @@ class LoginTestWithViewModel {
     @Test
     fun reconnection_givenNetworkReturns_fieldsBecomeEnabled() = runTest {
         val repo = TestAccountRepo()
+        val viewModel = LoginViewModel(accountRepository = repo, app = context)
         rule.setContent {
             LoginScreen(
-                viewModel = LoginViewModel(accountRepository = repo, app = context),
+                viewModel = viewModel,
                 navigateToSplashScreen = {})
         }
 
@@ -192,7 +164,13 @@ class LoginTestWithViewModel {
         rule.onNodeWithTag(LoginTestTags.EMAIL_TEXT_FIELD).performTextInput("user")
         rule.onNodeWithTag(LoginTestTags.PASSWORD_TEXT_FIELD).performTextInput("psw")
 
-        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON).performClick()
+        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON)
+            .assertIsEnabled()
+            .performClick()
+
+        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON).assertIsDisplayed()
+        rule.onNodeWithTag(LoginTestTags.LOADING_INDICATOR).assertIsDisplayed()
+        rule.onNodeWithTag(LoginTestTags.LOGIN_BUTTON_TEXT).assertDoesNotExist()
 
         rule.waitUntil(timeoutMillis = 3000) {
             navigationTriggeredCount == 1
@@ -205,10 +183,13 @@ class LoginTestWithViewModel {
     @Test
     fun inputValidation_givenEmptyFields_loginButtonIsDisabled() = runTest {
         val repo = TestAccountRepo()
+
+        val viewModel = LoginViewModel(accountRepository = repo, app = context)
         rule.setContent {
             LoginScreen(
-                viewModel = LoginViewModel(accountRepository = repo, app = context),
-                navigateToSplashScreen = {})
+                viewModel = viewModel,
+                navigateToSplashScreen = {}
+            )
         }
 
         rule.onNodeWithTag(LoginTestTags.EMAIL_TEXT_FIELD).performTextInput("user")
@@ -222,9 +203,11 @@ class LoginTestWithViewModel {
             isAuthenticated = true
         }
         var navigationTriggeredCount = 0
+        val viewModel = LoginViewModel(accountRepository = repo, app = context)
+
         rule.setContent {
             LoginScreen(
-                viewModel = LoginViewModel(accountRepository = repo, app = context),
+                viewModel = viewModel,
                 navigateToSplashScreen = {
                     navigationTriggeredCount++
                 }
