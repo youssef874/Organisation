@@ -44,7 +44,7 @@
     <string name="status_holiday">Holiday</string>
     <string name="status_personal_holiday">Personal holiday</string>
     <string name="status_none">None</string>
-    <string name="next_week_labe">Next Week</string>
+    <string name="next_week_label">Next Week</string>
     <string name="previous_week_label">Previous Week</string>
     <string name="status_in_progress">In progress</string>
 </resources>

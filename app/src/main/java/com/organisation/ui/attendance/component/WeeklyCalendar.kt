@@ -146,7 +146,7 @@ fun WeeklyCalendarNavigator(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = stringResource(R.string.next_week_labe),
+                contentDescription = stringResource(R.string.next_week_label),
                 tint = if (isDarkMode) Color.White else AppPrimaryColor
             )
         }
