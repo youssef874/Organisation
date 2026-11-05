@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -12,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.organisation"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -32,6 +33,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
     }
     buildFeatures {
         compose = true
@@ -60,6 +66,10 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.navigation3)
     implementation(libs.kotlinx.serialization.core)
+    implementation(libs.androidx.compose.adaptive.core)
+    implementation(libs.androidx.compose.adaptive.layout)
+    implementation(libs.androidx.compose.adaptive.navigation)
+    implementation(libs.androidx.compose.adaptive.navigation.suite)
     implementation(libs.androidx.compose.adaptive.navigation3)
 
     // Hilt
@@ -68,6 +78,8 @@ dependencies {
     implementation(libs.android.hilt.navigation)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mokito)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -75,4 +87,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     androidTestImplementation(libs.hilt.test)
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }

@@ -1,11 +1,13 @@
 package com.organisation.ui.common.components
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,6 +17,7 @@ import com.organisation.ui.theme.AppBackground
 import com.organisation.ui.theme.AppBackgroundDark
 import com.organisation.ui.theme.AppButtonColor
 import com.organisation.ui.theme.AppButtonColorDark
+import com.organisation.ui.theme.OrganisationTheme
 
 @Composable
 fun OrgPrimaryButton(
@@ -26,6 +29,7 @@ fun OrgPrimaryButton(
         contentColor = if (!isSystemInDarkTheme()) AppBackground else AppBackgroundDark
     ),
     elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     onClick: () -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -36,8 +40,59 @@ fun OrgPrimaryButton(
         content = content,
         shape = shape,
         colors = colors,
-        elevation = elevation
+        elevation = elevation,
+        contentPadding = contentPadding
 
+    )
+}
+
+@Composable
+fun OrgOutlineButton(
+    modifier: Modifier = Modifier, isButtonEnabled: Boolean = true,
+    shape: Shape = ButtonDefaults.shape,
+    colors: ButtonColors = ButtonDefaults.buttonColors().copy(
+        containerColor = if (!isSystemInDarkTheme()) AppBackground else AppBackgroundDark,
+        contentColor = if (!isSystemInDarkTheme()) AppButtonColor else AppButtonColorDark
+    ),
+    elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
+    contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
+    onClick: () -> Unit,
+    content: @Composable RowScope.() -> Unit
+) {
+    OutlinedButton(
+        modifier = modifier,
+        enabled = isButtonEnabled,
+        onClick = onClick,
+        content = content,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        contentPadding = contentPadding
+    )
+}
+
+@OrganisationPreviews
+@Composable
+fun OrgOutlineButtonPreview() {
+    OrganisationTheme {
+        OrgOutlineButton(
+            onClick = {},
+            content = {
+                Text(text = "Outline Button")
+            }
+        )
+    }
+}
+
+@OrganisationPreviews
+@Composable
+fun OrgOutlineButtonDisabledPreview() {
+    OrgOutlineButton(
+        onClick = {},
+        isButtonEnabled = false,
+        content = {
+            Text(text = "Outline Button")
+        }
     )
 }
 

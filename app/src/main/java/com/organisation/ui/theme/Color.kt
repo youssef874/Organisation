@@ -26,3 +26,25 @@ val AppComponentsBorderDark = Color(0xFF263349)
 val AppButtonColor = Color(0xFF12A594)
 
 val AppButtonColorDark = Color(0xFF12A594)
+
+val AppPresentColor = Color(0xFF4CAF50)
+
+val AppAbsentColor = Color(0xFFF44336)
+
+val AppLeaveColor = Color(0xFF2196F3)
+
+val AppPartialLeaveColor = Color(0xFFFF9800)
+
+val AppPendingColor = Color(0xFF9E9E9E)
+
+val AppWeekendColor = Color(0xFFF5F5F5)
+
+val AppNoneColor = Color.White
+
+val AppCalendarTextWeekendColor = Color.LightGray
+
+val AppCalendarTextNoneColor = Color.Black.copy(alpha = 0.4f)
+
+val AppCalendarRegularTextColor = Color.Black
+
+val AppCardSurfaceColorDark = Color(0xFF141D2E)

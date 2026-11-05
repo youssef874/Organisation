@@ -25,9 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             OrganisationTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LauncherApps(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    LauncherApps(Modifier.padding(innerPadding))
                 }
             }
         }
