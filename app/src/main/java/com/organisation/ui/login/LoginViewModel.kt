@@ -118,7 +118,7 @@ class LoginViewModel @Inject constructor(
     fun performLogin() {
         LoggerHelper.logger.i(
             TAG,
-            "$CLASS_NAME|performLogin|request authentication userName: ${uiState.value.email}, psw: ${uiState.value.password}"
+            "$CLASS_NAME|performLogin|request authentication"
         )
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }

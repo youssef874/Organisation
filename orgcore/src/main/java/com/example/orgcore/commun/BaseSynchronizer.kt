@@ -1,5 +1,7 @@
 package com.example.orgcore.commun
 
+import kotlinx.coroutines.CancellationException
+
 /**
  * Base class for synchronizers that handles common network and caching flow.
  *
@@ -54,7 +56,10 @@ internal abstract class BaseSynchronizer<T>(
                     }
                 }
             }
-        } catch (e: Exception) {
+        }catch (e: CancellationException){
+            throw e
+        }
+        catch (e: Exception) {
             LoggerHelper.logger.e(tag, "$className|synchronize|Unexpected Error: ${e.message}")
             updateIsSynchronized(false)
             SyncResult.Error.Unknown(e)
