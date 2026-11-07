@@ -7,10 +7,12 @@ import androidx.room.RoomDatabase
 import com.example.orgdatabase.internal.dao.AccountDao
 import com.example.orgdatabase.internal.dao.AttendanceDao
 import com.example.orgdatabase.internal.dao.EmailDao
+import com.example.orgdatabase.internal.dao.OfflineRequestDao
 import com.example.orgdatabase.internal.dao.PhoneNumberDao
 import com.example.orgdatabase.internal.entity.AccountEntity
 import com.example.orgdatabase.internal.entity.AttendanceEntity
 import com.example.orgdatabase.internal.entity.EmailEntity
+import com.example.orgdatabase.internal.entity.OfflineRequestEntity
 import com.example.orgdatabase.internal.entity.PhoneNumberEntity
 
 @Database(
@@ -18,7 +20,8 @@ import com.example.orgdatabase.internal.entity.PhoneNumberEntity
         AccountEntity::class,
         EmailEntity::class,
         PhoneNumberEntity::class,
-        AttendanceEntity::class
+        AttendanceEntity::class,
+        OfflineRequestEntity::class
     ],
     version = OrganisationDatabase.DATABASE_VERSION,
     exportSchema = false
@@ -28,6 +31,7 @@ internal abstract class OrganisationDatabase : RoomDatabase() {
     abstract fun emailDao(): EmailDao
     abstract fun phoneNumberDao(): PhoneNumberDao
     abstract fun attendanceDao(): AttendanceDao
+    abstract fun offlineRequestDao(): OfflineRequestDao
 
     companion object {
         const val DATABASE_VERSION = 1

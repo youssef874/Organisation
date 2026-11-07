@@ -16,7 +16,10 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = [AttendanceEntity.COLUMN_ACCOUNT_ID])]
+    indices = [
+        Index(value = [AttendanceEntity.COLUMN_ACCOUNT_ID]),
+        Index(value = [AttendanceEntity.COLUMN_DATE, AttendanceEntity.COLUMN_ATTENDANCE_STATUS])
+    ]
 )
 internal data class AttendanceEntity(
     @PrimaryKey(autoGenerate = true)

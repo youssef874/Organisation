@@ -2,9 +2,17 @@ package com.example.orgdatabase.internal.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = AccountEntity.TABLE_NAME)
+@Entity(
+    tableName = AccountEntity.TABLE_NAME,
+    indices = [
+        Index(value = [AccountEntity.COLUMN_IS_USER]),
+        Index(value = [AccountEntity.COLUMN_ACCOUNT_TYPE]),
+        Index(value = [AccountEntity.COLUMN_SUPERVISOR_ID])
+    ]
+)
 internal data class AccountEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_ID)
