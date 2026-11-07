@@ -5,14 +5,18 @@ import androidx.paging.PagingSource
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.orgdatabase.internal.dao.AccountDao
+import com.example.orgdatabase.internal.dao.AttendanceDao
 import com.example.orgdatabase.internal.dao.EmailDao
 import com.example.orgdatabase.internal.dao.PhoneNumberDao
 import com.example.orgdatabase.internal.db.OrganisationDatabase
 import com.example.orgdatabase.internal.entity.AccountEntity
+import com.example.orgdatabase.internal.entity.AttendanceEntity
 import com.example.orgdatabase.internal.entity.EmailEntity
 import com.example.orgdatabase.internal.entity.PhoneNumberEntity
 import com.example.orgdatabase.internal.mapper.toDBAccount
+import com.example.orgdatabase.public.model.AttendanceStatusType
 import com.example.orgdatabase.public.model.DBAccount
+import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -32,6 +36,7 @@ internal class AccountProviderImplTest {
     private lateinit var accountDao: AccountDao
     private lateinit var emailDao: EmailDao
     private lateinit var phoneNumberDao: PhoneNumberDao
+    private lateinit var attendanceDao: AttendanceDao
     private lateinit var accountProvider: AccountProvider
 
     @Before
@@ -45,8 +50,9 @@ internal class AccountProviderImplTest {
         accountDao = database.accountDao()
         emailDao = database.emailDao()
         phoneNumberDao = database.phoneNumberDao()
+        attendanceDao = database.attendanceDao()
 
-        accountProvider = AccountProviderImpl(database, accountDao, emailDao, phoneNumberDao)
+        accountProvider = AccountProviderImpl(database, accountDao, emailDao, phoneNumberDao, attendanceDao)
     }
 
     @After
@@ -56,7 +62,11 @@ internal class AccountProviderImplTest {
 
     @Test
     fun addAccountWithDetails_returnsTrue() = runTest {
-        val dbAccount = createDBAccount("Test User", emails = listOf("test@example.com"), phoneNumbers = listOf("123456"))
+        val dbAccount = createDBAccount(
+            "Test User",
+            emails = listOf("test@example.com"),
+            phoneNumbers = listOf("123456")
+        )
 
         val result = accountProvider.addAccountWithDetails(dbAccount)
 
@@ -78,12 +88,33 @@ internal class AccountProviderImplTest {
     @Test
     fun deleteAccountWithDetails_returnsTrue() = runTest {
         val accountId = accountDao.insert(createAccountEntity("Delete Me"))
+        emailDao.insert(EmailEntity(email = "test@example.com", accountId = accountId))
+        phoneNumberDao.insert(PhoneNumberEntity(number = "123456", accountId = accountId))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.PRESENT
+            )
+        )
 
         val result = accountProvider.deleteAccountWithDetails(accountId)
 
         assertTrue(result)
         val fetched = accountProvider.getAccountWithDetailsById(accountId)
         assertNull(fetched)
+
+        // Verify cascade deletion of related details
+        val emails = emailDao.getEmailsForAccount(accountId).first()
+        assertTrue(emails.isEmpty())
+
+        val phones = phoneNumberDao.getPhoneNumbersForAccount(accountId).first()
+        assertTrue(phones.isEmpty())
+
+        val attendances = attendanceDao.getAttendanceByAccountId(accountId)
+        assertTrue(attendances.isEmpty())
     }
 
     @Test
@@ -128,9 +159,187 @@ internal class AccountProviderImplTest {
     }
 
     @Test
+    fun updateAttendances_replacesOldAttendances() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 100L,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+
+        val newAttendances = listOf(
+            DBAttendance(
+                accountId = accountId,
+                checkIn = 300L,
+                checkOut = 400L,
+                date = 200L,
+                attendanceStatus = AttendanceStatusType.PRESENT,
+                isApproved = true
+            )
+        )
+        val result = accountProvider.updateAttendances(accountId, newAttendances)
+
+        assertTrue(result)
+        val records = attendanceDao.getAttendanceByAccountId(accountId)
+        assertEquals(1, records.size)
+        assertEquals(AttendanceStatusType.PRESENT, records[0].attendanceStatus)
+        assertTrue(records[0].isApproved)
+    }
+
+    @Test
+    fun getAttendancesByAccountId_returnsCorrectRecords() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.PRESENT
+            )
+        )
+
+        val attendances = accountProvider.getAttendancesByAccountId(accountId)
+        assertEquals(1, attendances.size)
+        assertEquals(AttendanceStatusType.PRESENT, attendances[0].attendanceStatus)
+    }
+
+    @Test
+    fun observeAttendancesByAccountId_emitsRecords() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+
+        val attendances = accountProvider.observeAttendancesByAccountId(accountId).first()
+        assertEquals(1, attendances.size)
+        assertEquals(AttendanceStatusType.ABSENT, attendances[0].attendanceStatus)
+    }
+
+    @Test
+    fun updateAttendanceStatusProvider_returnsTrue() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        val date = 5000L
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = date,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+
+        val success = accountProvider.updateAttendanceStatus(accountId, date, AttendanceStatusType.PRESENT)
+        assertTrue(success)
+
+        val fetched = accountProvider.getAttendanceByDate(accountId, date)
+        assertEquals(AttendanceStatusType.PRESENT, fetched?.attendanceStatus)
+    }
+
+    @Test
+    fun getAndObserveAttendanceByDate_returnsCorrectRecord() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        val date = 6000L
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = date,
+                attendanceStatus = AttendanceStatusType.HOLIDAY
+            )
+        )
+
+        val fetched = accountProvider.getAttendanceByDate(accountId, date)
+        assertNotNull(fetched)
+        assertEquals(AttendanceStatusType.HOLIDAY, fetched?.attendanceStatus)
+
+        val observed = accountProvider.observeAttendanceByDate(accountId, date).first()
+        assertNotNull(observed)
+        assertEquals(AttendanceStatusType.HOLIDAY, observed?.attendanceStatus)
+    }
+
+    @Test
+    fun getAndObserveAttendancesByDateRangeProvider() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 100L, attendanceStatus = AttendanceStatusType.PRESENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 200L, attendanceStatus = AttendanceStatusType.PRESENT))
+
+        val list = accountProvider.getAttendancesByDateRange(accountId, 50L, 150L)
+        assertEquals(1, list.size)
+
+        val flowList = accountProvider.observeAttendancesByDateRange(accountId, 50L, 250L).first()
+        assertEquals(2, flowList.size)
+
+        val chunked = accountProvider.getAttendancesByDateRangeChunked(accountId, 50L, 250L, 0, 1)
+        assertEquals(1, chunked.size)
+
+        val paged = accountProvider.getAttendancesByDateRangePaged(accountId, 50L, 250L)
+        assertNotNull(paged)
+    }
+
+    @Test
+    fun getAttendancesByAccountIdChunked_returnsCorrectChunk() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        repeat(5) {
+            attendanceDao.insert(
+                AttendanceEntity(
+                    accountId = accountId,
+                    checkIn = 100L,
+                    checkOut = 200L,
+                    date = (1000 + it).toLong(),
+                    attendanceStatus = AttendanceStatusType.PRESENT
+                )
+            )
+        }
+
+        val chunk = accountProvider.getAttendancesByAccountIdChunked(accountId, page = 1, pageSize = 2)
+        assertEquals(2, chunk.size)
+    }
+
+    @Test
+    fun getAttendancesPaged_returnsPagingSource() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.PRESENT
+            )
+        )
+
+        val pagingSource = accountProvider.getAttendancesPaged(accountId)
+        val loadResult = pagingSource.load(
+            PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 10,
+                placeholdersEnabled = false
+            )
+        )
+
+        assertTrue(loadResult is PagingSource.LoadResult.Page)
+        val page = loadResult as PagingSource.LoadResult.Page
+        assertEquals(1, page.data.size)
+    }
+
+    @Test
     fun getAccountWithDetailsById_returnsCorrectData() = runTest {
         val accountId = accountDao.insert(createAccountEntity("User"))
         emailDao.insert(EmailEntity(email = "email@test.com", accountId = accountId))
+        phoneNumberDao.insert(PhoneNumberEntity(number = "987654", accountId = accountId))
 
         val result = accountProvider.getAccountWithDetailsById(accountId)
 
@@ -138,16 +347,24 @@ internal class AccountProviderImplTest {
         assertEquals("User", result?.name)
         assertEquals(1, result?.emails?.size)
         assertEquals("email@test.com", result?.emails?.get(0))
+        assertEquals(1, result?.phoneNumbers?.size)
+        assertEquals("987654", result?.phoneNumbers?.get(0))
     }
 
     @Test
     fun observeAccountWithDetailsById_emitsData() = runTest {
-        val accountId = accountDao.insert(createAccountEntity("User"))
-        
+        val accountId = accountDao.insert(createAccountEntity("FlowUser"))
+        emailDao.insert(EmailEntity(email = "flow@test.com", accountId = accountId))
+        phoneNumberDao.insert(PhoneNumberEntity(number = "555444", accountId = accountId))
+
         val result = accountProvider.observeAccountWithDetailsById(accountId).first()
 
         assertNotNull(result)
-        assertEquals("User", result?.name)
+        assertEquals("FlowUser", result?.name)
+        assertEquals(1, result?.emails?.size)
+        assertEquals("flow@test.com", result?.emails?.get(0))
+        assertEquals(1, result?.phoneNumbers?.size)
+        assertEquals("555444", result?.phoneNumbers?.get(0))
     }
 
     @Test
@@ -213,7 +430,11 @@ internal class AccountProviderImplTest {
         serverId = name
     )
 
-    private fun createDBAccount(name: String, emails: List<String> = emptyList(), phoneNumbers: List<String> = emptyList()) = DBAccount(
+    private fun createDBAccount(
+        name: String,
+        emails: List<String> = emptyList(),
+        phoneNumbers: List<String> = emptyList()
+    ) = DBAccount(
         id = 0,
         name = name,
         photoUri = "uri_$name",

@@ -13,7 +13,8 @@ internal object DataProvider {
             db = db,
             accountDao = db.accountDao(),
             emailDao = db.emailDao(),
-            phoneNumberDao = db.phoneNumberDao()
+            phoneNumberDao = db.phoneNumberDao(),
+            attendanceDao = db.attendanceDao()
         )
     }
 }

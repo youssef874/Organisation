@@ -1,7 +1,9 @@
 package com.example.orgdatabase.internal.provider
 
 import androidx.paging.PagingSource
+import com.example.orgdatabase.public.model.AttendanceStatusType
 import com.example.orgdatabase.public.model.DBAccount
+import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -58,6 +60,119 @@ internal interface AccountProvider {
      * @return `true` if the update was successful, `false` otherwise.
      */
     suspend fun updatePhoneNumbers(accountId: Long, phoneNumbers: List<String>): Boolean
+
+    /**
+     * Updates the attendance records associated with a specific account.
+     *
+     * @param accountId The ID of the account.
+     * @param attendances The new list of attendance records.
+     * @return `true` if the update was successful, `false` otherwise.
+     */
+    suspend fun updateAttendances(accountId: Long, attendances: List<DBAttendance>): Boolean
+
+    /**
+     * Updates the attendance status for a specific account on a given date.
+     *
+     * @param accountId The ID of the account.
+     * @param date The timestamp/epoch date for which to update the status.
+     * @param status The new attendance status, restricted to valid values defined in [AttendanceStatusType].
+     * @return `true` if the update was successful, `false` otherwise.
+     */
+    suspend fun updateAttendanceStatus(accountId: Long, date: Long, @AttendanceStatusType status: String): Boolean
+
+    /**
+     * Retrieves all attendance records for a specific account.
+     *
+     * @param accountId The ID of the account.
+     * @return A list of [DBAttendance] records.
+     */
+    suspend fun getAttendancesByAccountId(accountId: Long): List<DBAttendance>
+
+    /**
+     * Observes attendance records for a specific account.
+     *
+     * @param accountId The ID of the account to observe.
+     * @return A [Flow] emitting a list of [DBAttendance] records whenever changes occur.
+     */
+    fun observeAttendancesByAccountId(accountId: Long): Flow<List<DBAttendance>>
+
+    /**
+     * Retrieves the attendance record for a specific account on a given date.
+     *
+     * @param accountId The ID of the account.
+     * @param date The timestamp/epoch date.
+     * @return The [DBAttendance] record if found, or `null` otherwise.
+     */
+    suspend fun getAttendanceByDate(accountId: Long, date: Long): DBAttendance?
+
+    /**
+     * Observes the attendance record for a specific account on a given date.
+     *
+     * @param accountId The ID of the account.
+     * @param date The timestamp/epoch date.
+     * @return A [Flow] emitting the [DBAttendance] record or `null` whenever changes occur.
+     */
+    fun observeAttendanceByDate(accountId: Long, date: Long): Flow<DBAttendance?>
+
+    /**
+     * Retrieves attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @return A list of [DBAttendance] records falling within the specified range.
+     */
+    suspend fun getAttendancesByDateRange(accountId: Long, startDate: Long, endDate: Long): List<DBAttendance>
+
+    /**
+     * Observes attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @return A [Flow] emitting a list of [DBAttendance] records within the range whenever changes occur.
+     */
+    fun observeAttendancesByDateRange(accountId: Long, startDate: Long, endDate: Long): Flow<List<DBAttendance>>
+
+    /**
+     * Retrieves a chunk (page) of attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @param page The page number (starting from 0).
+     * @param pageSize The number of records per page.
+     * @return A list of [DBAttendance] records for the requested chunk.
+     */
+    suspend fun getAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): List<DBAttendance>
+
+    /**
+     * Returns a [PagingSource] for paginated access to attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @return A [PagingSource] providing paged attendance records.
+     */
+    fun getAttendancesByDateRangePaged(accountId: Long, startDate: Long, endDate: Long): PagingSource<Int, DBAttendance>
+
+    /**
+     * Retrieves a chunk (page) of attendance records for a specific account.
+     *
+     * @param accountId The ID of the account.
+     * @param page The page number (starting from 0).
+     * @param pageSize The number of records per page.
+     * @return A list of [DBAttendance] records for the requested chunk.
+     */
+    suspend fun getAttendancesByAccountIdChunked(accountId: Long, page: Int, pageSize: Int): List<DBAttendance>
+
+    /**
+     * Returns a [PagingSource] for paginated access to attendance records for an account.
+     *
+     * @param accountId The ID of the account.
+     * @return A [PagingSource] providing paged attendance records.
+     */
+    fun getAttendancesPaged(accountId: Long): PagingSource<Int, DBAttendance>
 
     /**
      * Retrieves a single account with its details by ID.

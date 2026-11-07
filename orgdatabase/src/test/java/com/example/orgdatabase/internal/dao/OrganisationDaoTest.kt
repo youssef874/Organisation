@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.orgdatabase.internal.db.OrganisationDatabase
 import com.example.orgdatabase.internal.entity.AccountEntity
+import com.example.orgdatabase.internal.entity.AttendanceEntity
 import com.example.orgdatabase.internal.entity.EmailEntity
 import com.example.orgdatabase.internal.entity.PhoneNumberEntity
 import kotlinx.coroutines.flow.first
@@ -25,6 +26,7 @@ internal class OrganisationDaoTest {
     private lateinit var accountDao: AccountDao
     private lateinit var emailDao: EmailDao
     private lateinit var phoneNumberDao: PhoneNumberDao
+    private lateinit var attendanceDao: AttendanceDao
 
     @Before
     fun setup() {
@@ -37,6 +39,7 @@ internal class OrganisationDaoTest {
         accountDao = database.accountDao()
         emailDao = database.emailDao()
         phoneNumberDao = database.phoneNumberDao()
+        attendanceDao = database.attendanceDao()
     }
 
     @After
@@ -60,6 +63,15 @@ internal class OrganisationDaoTest {
         val accountId = accountDao.insert(createAccount("User"))
         emailDao.insert(EmailEntity(email = "test@example.com", accountId = accountId))
         phoneNumberDao.insert(PhoneNumberEntity(number = "123456", accountId = accountId))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 300L,
+                attendanceStatus = AttendanceEntity.STATUS_PRESENT
+            )
+        )
 
         val detailsList = accountDao.getAllAccountsWithDetails().first()
         assertEquals(1, detailsList.size)
@@ -69,6 +81,8 @@ internal class OrganisationDaoTest {
         assertEquals("test@example.com", details.emails[0].email)
         assertEquals(1, details.phoneNumbers.size)
         assertEquals("123456", details.phoneNumbers[0].number)
+        assertEquals(1, details.attendanceRecords.size)
+        assertEquals(AttendanceEntity.STATUS_PRESENT, details.attendanceRecords[0].attendanceStatus)
     }
 
     @Test
@@ -80,6 +94,135 @@ internal class OrganisationDaoTest {
         assertNotNull(details)
         assertEquals("DetailsUser", details?.account?.name)
         assertEquals(1, details?.emails?.size)
+    }
+
+    @Test
+    fun getAttendanceByAccountId() = runTest {
+        val accountId = accountDao.insert(createAccount("AttendanceUser"))
+        val id = attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 1000L,
+                checkOut = 2000L,
+                date = 10000L,
+                attendanceStatus = AttendanceEntity.STATUS_PRESENT,
+                requestReason = "None",
+                isApproved = true,
+                isRequestInProgress = false
+            )
+        )
+
+        val records = attendanceDao.getAttendanceByAccountId(accountId)
+        assertEquals(1, records.size)
+        assertEquals(AttendanceEntity.STATUS_PRESENT, records[0].attendanceStatus)
+        assertTrue(records[0].isApproved)
+        assertEquals(id, records.first().id)
+    }
+
+    @Test
+    fun observeAttendanceByAccountId() = runTest {
+        val accountId = accountDao.insert(createAccount("ObserverUser"))
+        val id = attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 1000L,
+                checkOut = 2000L,
+                date = 10000L,
+                attendanceStatus = AttendanceEntity.STATUS_ABSENT,
+                isApproved = false,
+                isRequestInProgress = true
+            )
+        )
+
+        val records = attendanceDao.observeAttendanceByAccountId(accountId).first()
+        assertEquals(1, records.size)
+        assertEquals(AttendanceEntity.STATUS_ABSENT, records[0].attendanceStatus)
+        assertTrue(records[0].isRequestInProgress)
+        assertEquals( id , records.first().id)
+    }
+
+    @Test
+    fun getAttendanceByAccountAndDate() = runTest {
+        val accountId = accountDao.insert(createAccount("DateUser"))
+        val targetDate = 123456789L
+        val  id = attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 1000L,
+                checkOut = 2000L,
+                date = targetDate,
+                attendanceStatus = AttendanceEntity.STATUS_HOLIDAY
+            )
+        )
+
+        val record = attendanceDao.getAttendanceByAccountAndDate(accountId, targetDate)
+        assertNotNull(record)
+        assertEquals(AttendanceEntity.STATUS_HOLIDAY, record?.attendanceStatus)
+        assertEquals(id, record?.id)
+
+        val missing = attendanceDao.getAttendanceByAccountAndDate(accountId, 999999L)
+        assert(missing == null)
+    }
+
+    @Test
+    fun updateAttendanceStatusDao() = runTest {
+        val accountId = accountDao.insert(createAccount("UpdateStatusUser"))
+        val targetDate = 1000L
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = targetDate,
+                attendanceStatus = AttendanceEntity.STATUS_ABSENT
+            )
+        )
+
+        val updatedRows = attendanceDao.updateAttendanceStatus(accountId, targetDate, AttendanceEntity.STATUS_PRESENT)
+        assertEquals(1, updatedRows)
+
+        val record = attendanceDao.getAttendanceByAccountAndDate(accountId, targetDate)
+        assertEquals(AttendanceEntity.STATUS_PRESENT, record?.attendanceStatus)
+    }
+
+    @Test
+    fun observeAttendanceByAccountAndDateDao() = runTest {
+        val accountId = accountDao.insert(createAccount("ObserveDateUser"))
+        val targetDate = 2000L
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = targetDate,
+                attendanceStatus = AttendanceEntity.STATUS_PAID_LEAVE
+            )
+        )
+
+        val record = attendanceDao.observeAttendanceByAccountAndDate(accountId, targetDate).first()
+        assertNotNull(record)
+        assertEquals(AttendanceEntity.STATUS_PAID_LEAVE, record?.attendanceStatus)
+    }
+
+    @Test
+    fun getAndObserveAttendancesByDateRangeDao() = runTest {
+        val accountId = accountDao.insert(createAccount("RangeUser"))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 100L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 200L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 300L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+
+        val list = attendanceDao.getAttendancesByDateRange(accountId, 150L, 250L)
+        assertEquals(1, list.size)
+        assertEquals(200L, list[0].date)
+
+        val flowList = attendanceDao.observeAttendancesByDateRange(accountId, 50L, 350L).first()
+        assertEquals(3, flowList.size)
+
+        val chunked = attendanceDao.getAttendancesByDateRangeChunked(accountId, 50L, 350L, limit = 2, offset = 0)
+        assertEquals(2, chunked.size)
+
+        val paged = attendanceDao.getAttendancesByDateRangePaged(accountId, 50L, 350L)
+        assertNotNull(paged)
     }
 
     @Test

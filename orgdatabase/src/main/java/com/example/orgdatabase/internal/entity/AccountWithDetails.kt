@@ -14,5 +14,10 @@ internal data class AccountWithDetails(
         parentColumn = AccountEntity.COLUMN_ID,
         entityColumn = PhoneNumberEntity.COLUMN_ACCOUNT_ID
     )
-    val phoneNumbers: List<PhoneNumberEntity>
+    val phoneNumbers: List<PhoneNumberEntity>,
+    @Relation(
+        parentColumn = AccountEntity.COLUMN_ID,
+        entityColumn = AttendanceEntity.COLUMN_ACCOUNT_ID
+    )
+    val attendanceRecords: List<AttendanceEntity>
 )

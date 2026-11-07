@@ -2,9 +2,11 @@ package com.example.orgdatabase.internal.mapper
 
 import com.example.orgdatabase.internal.entity.AccountEntity
 import com.example.orgdatabase.internal.entity.AccountWithDetails
+import com.example.orgdatabase.internal.entity.AttendanceEntity
 import com.example.orgdatabase.internal.entity.EmailEntity
 import com.example.orgdatabase.internal.entity.PhoneNumberEntity
 import com.example.orgdatabase.public.model.DBAccount
+import com.example.orgdatabase.public.model.DBAttendance
 
 internal fun AccountWithDetails.toDBAccount(): DBAccount {
     return DBAccount(
@@ -33,6 +35,34 @@ internal fun AccountEntity.toDBAccount(): DBAccount {
         supervisorId = supervisorId,
         emails = emptyList(),
         phoneNumbers = emptyList()
+    )
+}
+
+internal fun AttendanceEntity.toDBAttendance(): DBAttendance {
+    return DBAttendance(
+        id = id,
+        accountId = accountId,
+        checkIn = checkIn,
+        checkOut = checkOut,
+        date = date,
+        attendanceStatus = attendanceStatus,
+        requestReason = requestReason,
+        isApproved = isApproved,
+        isRequestInProgress = isRequestInProgress
+    )
+}
+
+internal fun DBAttendance.toAttendanceEntity(): AttendanceEntity {
+    return AttendanceEntity(
+        id = id,
+        accountId = accountId,
+        checkIn = checkIn,
+        checkOut = checkOut,
+        date = date,
+        attendanceStatus = attendanceStatus,
+        requestReason = requestReason,
+        isApproved = isApproved,
+        isRequestInProgress = isRequestInProgress
     )
 }
 
