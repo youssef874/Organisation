@@ -176,7 +176,7 @@ fun WeeklyCalendarGrid(
     ) {
         items(weekDays, key = { it.toEpochDay() }) { date ->
             val record = attendanceMap[date] ?: AttendanceRecord(
-                id = "${date.year}_${date.monthValue}_${date.dayOfMonth}",
+                id = date.toEpochDay(),
                 dayOfMonth = date.dayOfMonth,
                 dayOfWeek = date.dayOfWeek.name,
                 monthOfYear = date.monthValue,

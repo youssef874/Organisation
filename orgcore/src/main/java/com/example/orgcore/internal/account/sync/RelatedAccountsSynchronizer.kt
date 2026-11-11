@@ -19,7 +19,7 @@ internal class RelatedAccountsSynchronizer(
 ) : BaseSynchronizer<List<Account>>(relatedUserAccountsServerRequest) {
 
     override val className: String = "RelatedAccountsSynchronizer"
-    override val tag: String = "ACCOUNT_SYNC"
+    override val tag: String = "ACCOUNT"
     override suspend fun updateIsSynchronized(isSynchronized: Boolean) {
         accountSettings.isRelatedUserAccountSynchronized.updateData(isSynchronized)
     }
@@ -29,13 +29,12 @@ internal class RelatedAccountsSynchronizer(
     }
 
     override suspend fun performCaching(data: List<Account>): Boolean {
-        println("test cache: $data")
         return data.chunked(BATCH_SIZE).all {
             relatedUserAccountOfflineCache.cache(it)
         }
     }
 
     override suspend fun isSynchronized(): Boolean {
-        return accountSettings.isRelatedUserAccountSynchronized.getData(false) == true
+        return accountSettings.isRelatedUserAccountSynchronized.getData(false)
     }
 }

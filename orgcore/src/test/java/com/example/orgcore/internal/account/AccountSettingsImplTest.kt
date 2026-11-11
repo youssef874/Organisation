@@ -2,8 +2,6 @@ package com.example.orgcore.internal.account
 
 import com.example.orgcore.internal.FakeDataStoreProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest

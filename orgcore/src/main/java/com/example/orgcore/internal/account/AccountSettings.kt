@@ -7,4 +7,6 @@ internal interface AccountSettings {
     val isUserAccountSynchronized: DataStoreItemProvider<Boolean>
 
     val isRelatedUserAccountSynchronized: DataStoreItemProvider<Boolean>
+
+    val isUserAttendanceRapportSynchronized: DataStoreItemProvider<Boolean>
 }

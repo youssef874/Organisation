@@ -1,5 +1,7 @@
 package com.example.orgcore.commun
 
+import com.example.orgcore.commun.model.NetworkResult
+import com.example.orgcore.commun.model.SyncResult
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

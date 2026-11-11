@@ -7,7 +7,10 @@ import com.example.orgcore.SDKComponent
 import com.example.orgcore.api.account.authentication.AuthenticationApi
 import com.example.orgcore.api.account.event.AccountEventTypes
 import com.example.orgcore.api.account.event.AccountFetchDataResult
-import com.example.orgcore.commun.SyncResult
+import com.example.orgcore.api.account.model.AccountUserType
+import com.example.orgcore.api.attendance.AttendanceApi
+import com.example.orgcore.commun.FakeData
+import com.example.orgcore.commun.model.SyncResult
 import com.example.orgcore.internal.ServicesProvider
 import com.example.orgdatabase.public.api.AccountDataApi
 import kotlinx.coroutines.flow.filterIsInstance
@@ -44,6 +47,7 @@ class AccountSyncE2ETest {
             ServicesProvider.getAuthenticationProvider(context).clear()
             ServicesProvider.getAccountSettings(context).isUserAccountSynchronized.updateData(false)
             ServicesProvider.getAccountSettings(context).isRelatedUserAccountSynchronized.updateData(false)
+            ServicesProvider.getAccountSettings(context).isUserAttendanceRapportSynchronized.updateData(false)
         }
         
         setNetworkConnected(true)
@@ -55,7 +59,6 @@ class AccountSyncE2ETest {
         val authResult = AuthenticationApi.requestAuthentication("worker", "psw")
         assertTrue("Authentication should succeed", authResult is com.example.orgcore.commun.model.Result.Success)
 
-        println("test: fetch")
         // 2. Trigger synchronization
         AccountApi.fetchData()
 
@@ -68,17 +71,29 @@ class AccountSyncE2ETest {
 
         // 4. Verify Database Persistence
         val allAccounts = accountDataApi.getAccountsByChunk(0, 10)
-        println("test: $allAccounts")
         assertTrue("Database should contain cached accounts", allAccounts.isNotEmpty())
         
-        val cachedUser = allAccounts.find { it.serverId == "1" }
+        val cachedUser = allAccounts.find { it.serverId == "3" }
         assertNotNull("Owner account should be in DB", cachedUser)
         assertTrue("Owner account should be marked as user", cachedUser!!.isUser)
 
-        // 5. Verify Settings flags
+        // 5. Verify Attendance Persistence via AttendanceApi matches expected fake data
+        val expectedAttendances = FakeData.getFakeData(AccountUserType.WORKER).attendance
+        val cachedAttendances = AttendanceApi.getAttendanceRapportByAccountId(cachedUser.id)
+        
+        assertEquals("Cached attendances count should match expected", expectedAttendances.size, cachedAttendances.size)
+        cachedAttendances.forEachIndexed { index, orgAttendance ->
+            assertEquals(expectedAttendances[index].checkIn, orgAttendance.checkIn)
+            assertEquals(expectedAttendances[index].checkOut, orgAttendance.checkOut)
+            assertEquals(expectedAttendances[index].date, orgAttendance.date)
+            assertEquals(expectedAttendances[index].attendanceStatus, orgAttendance.attendanceStatus)
+        }
+
+        // 6. Verify Settings flags
         val settings = ServicesProvider.getAccountSettings(context)
-        assertTrue(settings.isUserAccountSynchronized.getData(false) == true)
-        assertTrue(settings.isRelatedUserAccountSynchronized.getData(false) == true)
+        assertTrue(settings.isUserAccountSynchronized.getData(false))
+        assertTrue(settings.isRelatedUserAccountSynchronized.getData(false))
+        assertTrue(settings.isUserAttendanceRapportSynchronized.getData(false))
     }
 
     @Test
@@ -87,7 +102,8 @@ class AccountSyncE2ETest {
         val settings = ServicesProvider.getAccountSettings(context)
         settings.isUserAccountSynchronized.updateData(true)
         settings.isRelatedUserAccountSynchronized.updateData(true)
-        
+        settings.isUserAttendanceRapportSynchronized.updateData(true)
+
         // 2. Trigger sync
         AccountApi.fetchData()
         

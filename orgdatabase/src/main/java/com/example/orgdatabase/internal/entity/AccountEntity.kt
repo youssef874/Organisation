@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index(value = [AccountEntity.COLUMN_IS_USER]),
         Index(value = [AccountEntity.COLUMN_ACCOUNT_TYPE]),
-        Index(value = [AccountEntity.COLUMN_SUPERVISOR_ID])
+        Index(value = [AccountEntity.COLUMN_SUPERVISOR_ID]),
+        Index(value = [AccountEntity.COLUMN_SERVER_ID], unique = true)
     ]
 )
 internal data class AccountEntity(

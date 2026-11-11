@@ -110,7 +110,7 @@ fun AttendanceActionButtonsAbsentOrPresentPreview() {
             ) {
                 AttendanceActionButtons(
                     record = AttendanceRecord(
-                        id = "1",
+                        id = 1L,
                         dayOfMonth = 10,
                         dayOfWeek = "Monday",
                         status = AttendanceStatus.Absent
@@ -131,7 +131,7 @@ fun AttendanceActionButtonsPendingPreview() {
         Scaffold { innerPadding ->
             AttendanceActionButtons(
                 record = AttendanceRecord(
-                    id = "1",
+                    id = 1L,
                     dayOfMonth = 10,
                     dayOfWeek = "Monday",
                     status = AttendanceStatus.Pending
@@ -152,7 +152,7 @@ fun AttendanceActionButtonsLoadingPreview() {
         Scaffold { innerPadding ->
             AttendanceActionButtons(
                 record = AttendanceRecord(
-                    id = "1",
+                    id = 1L,
                     dayOfMonth = 10,
                     dayOfWeek = "Monday",
                     status = AttendanceStatus.Absent

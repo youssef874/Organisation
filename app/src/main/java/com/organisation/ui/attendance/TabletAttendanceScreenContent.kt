@@ -306,7 +306,7 @@ fun TabletAttendanceScreenContentLoadingPreview() {
     val selectedDay = remember {
         MutableStateFlow(
             AttendanceRecord(
-                id = "loading_selected",
+                id = 1L,
                 dayOfMonth = 1,
                 dayOfWeek = "Monday",
                 status = AttendanceStatus.None

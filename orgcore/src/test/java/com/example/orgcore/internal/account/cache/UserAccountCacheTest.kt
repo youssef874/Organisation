@@ -1,9 +1,8 @@
 package com.example.orgcore.internal.account.cache
 
-import com.example.orgcore.api.account.model.AccountUserType
+import com.example.orgcore.commun.FakeData
 import com.example.orgcore.commun.anyObject
 import com.example.orgcore.commun.capture
-import com.example.orgcore.internal.account.model.Account
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.model.DBAccount
 import kotlinx.coroutines.test.runTest
@@ -35,14 +34,7 @@ class UserAccountCacheTest {
 
     @Test
     fun `cache maps account correctly and calls database with isUser true`() = runTest {
-        val account = Account(
-            id = "user_id",
-            name = "John Doe",
-            email = "john@example.com",
-            phoneNumber = "123456",
-            image = "photo_uri",
-            type = AccountUserType.MANAGER
-        )
+        val account = FakeData.Manager.account.copy(image = "photo_uri")
         `when`(accountDataApi.addAccountWithDetails(anyObject())).thenReturn(true)
 
         val result = userAccountCache.cache(account)
@@ -63,14 +55,7 @@ class UserAccountCacheTest {
 
     @Test
     fun `cache returns false when database call fails`() = runTest {
-        val account = Account(
-            id = "id",
-            name = "name",
-            email = null,
-            phoneNumber = null,
-            image = null,
-            type = AccountUserType.WORKER
-        )
+        val account = FakeData.Employee.account.copy(email = null, phoneNumber = null, image = null)
         `when`(accountDataApi.addAccountWithDetails(anyObject())).thenReturn(false)
 
         val result = userAccountCache.cache(account)

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
+import androidx.room.Upsert
 
 /**
  * This represents a base structure for any dao in the sdk, so all the dao will inherit from this interface
@@ -15,6 +16,11 @@ import androidx.room.Update
 @Dao
 internal interface BaseDao<T> {
 
+    @Upsert
+    suspend fun upsert(data: T): Long
+
+    @Upsert
+    suspend fun upsert(data: List<T>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(data: T): Long

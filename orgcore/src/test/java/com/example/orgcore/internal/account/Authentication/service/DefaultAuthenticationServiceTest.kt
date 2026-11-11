@@ -11,6 +11,7 @@ import com.example.orgcore.internal.internal.datastore.DataStoreItemProvider
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -72,8 +73,8 @@ class DefaultAuthenticationServiceTest {
         assertEquals(AccountUserType.BOSS, account.type)
         
         // Verify provider updated
-        assertEquals("1", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(null))
-        assertEquals(AccountUserType.BOSS, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(null))
+        assertEquals("1", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(""))
+        assertEquals(AccountUserType.BOSS, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(-1))
     }
 
     @Test
@@ -86,8 +87,8 @@ class DefaultAuthenticationServiceTest {
         val account = (result as Result.Success).data
         assertEquals(AccountUserType.MANAGER, account.type)
         
-        assertEquals("2", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(null))
-        assertEquals(AccountUserType.MANAGER, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(null))
+        assertEquals("2", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(""))
+        assertEquals(AccountUserType.MANAGER, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(-1))
     }
 
     @Test
@@ -100,8 +101,8 @@ class DefaultAuthenticationServiceTest {
         val account = (result as Result.Success).data
         assertEquals(AccountUserType.WORKER, account.type)
         
-        assertEquals("3", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(null))
-        assertEquals(AccountUserType.WORKER, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(null))
+        assertEquals("3", authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(""))
+        assertEquals(AccountUserType.WORKER, authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(-1))
     }
 
     @Test
@@ -127,12 +128,12 @@ class DefaultAuthenticationServiceTest {
     private class FakeDataStoreItemProvider<T : Any> : DataStoreItemProvider<T> {
         private val state = MutableStateFlow<T?>(null)
         override suspend fun updateData(data: T) { state.value = data }
-        override fun listenToDataChanges(defaultData: T?): Flow<T?> = state
-        override suspend fun getData(defaultData: T?): T? = state.value ?: defaultData
-        override suspend fun remove(): T? {
+        override fun listenToDataChanges(defaultData: T): Flow<T> = state.map { it ?: defaultData }
+        override suspend fun getData(defaultData: T): T = state.value ?: defaultData
+        override suspend fun remove(): T {
             val old = state.value
             state.value = null
-            return old
+            return old!!
         }
     }
 }

@@ -226,6 +226,33 @@ internal class OrganisationDaoTest {
     }
 
     @Test
+    fun observeAttendancesByDateRangeChunkedDao() = runTest {
+        val accountId = accountDao.insert(createAccount("RangeUser2"))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 100L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 200L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+
+        val observeChunked = attendanceDao.observeAttendancesByDateRangeChunked(accountId, 50L, 250L, limit = 1, offset = 0).first()
+        assertEquals(1, observeChunked.size)
+        assertEquals(100L, observeChunked[0].date)
+    }
+
+    @Test
+    fun getAttendanceCountByStatusAndDateRangeDao() = runTest {
+        val accountId = accountDao.insert(createAccount("CountUser"))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 100L, attendanceStatus = AttendanceEntity.STATUS_ABSENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 200L, attendanceStatus = AttendanceEntity.STATUS_ABSENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 300L, attendanceStatus = AttendanceEntity.STATUS_PRESENT))
+
+        val count = attendanceDao.getAttendanceCountByStatusAndDateRange(
+            accountId = accountId,
+            attendanceStatus = AttendanceEntity.STATUS_ABSENT,
+            startDate = 50L,
+            endDate = 250L
+        )
+        assertEquals(2, count)
+    }
+
+    @Test
     fun getAccountsByChunk() = runTest {
         repeat(5) { accountDao.insert(createAccount("User $it")) }
         

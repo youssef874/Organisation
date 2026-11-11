@@ -1,5 +1,6 @@
 package com.example.orgcore.internal.account.Authentication.provider
 
+import com.example.orgcore.commun.LoggerHelper
 import com.example.orgcore.internal.internal.datastore.DataStoreItemProvider
 import com.example.orgcore.internal.internal.datastore.DataStoreProvider
 import kotlinx.coroutines.flow.Flow
@@ -12,6 +13,8 @@ internal class AuthenticationProviderDefault(
 ): AuthenticationProvider {
 
     companion object{
+        private const val TAG = "AUTHENTICATION"
+        private const val CLASS_NAME = "AuthenticationProviderDefault"
         internal const val AUTHENTICATED_USER_SERVER_SERVER_ID =  "authenticatedUserServerId"
         internal const val AUTHENTICATED_USER_ACCOUNT_TYPE = "authenticatedUserAccountType"
     }
@@ -22,11 +25,11 @@ internal class AuthenticationProviderDefault(
                 stringDataStoreProvider.put(AUTHENTICATED_USER_SERVER_SERVER_ID, data)
             }
 
-            override fun listenToDataChanges(defaultData: String?): Flow<String?> {
+            override fun listenToDataChanges(defaultData: String): Flow<String> {
                 return stringDataStoreProvider.observe(AUTHENTICATED_USER_SERVER_SERVER_ID, defaultData)
             }
 
-            override suspend fun getData(defaultData: String?): String? {
+            override suspend fun getData(defaultData: String): String {
                 return stringDataStoreProvider.observe(AUTHENTICATED_USER_SERVER_SERVER_ID, defaultData)
                     .firstOrNull()?:defaultData
             }
@@ -42,11 +45,11 @@ internal class AuthenticationProviderDefault(
             intDataStoreProvider.put(AUTHENTICATED_USER_ACCOUNT_TYPE, data)
         }
 
-        override fun listenToDataChanges(defaultData: Int?): Flow<Int?> {
+        override fun listenToDataChanges(defaultData: Int): Flow<Int> {
             return intDataStoreProvider.observe(AUTHENTICATED_USER_ACCOUNT_TYPE, defaultData)
         }
 
-        override suspend fun getData(defaultData: Int?): Int? {
+        override suspend fun getData(defaultData: Int): Int {
             return intDataStoreProvider.observe(AUTHENTICATED_USER_ACCOUNT_TYPE, defaultData)
                 .firstOrNull()?:defaultData
         }
@@ -58,7 +61,12 @@ internal class AuthenticationProviderDefault(
     }
 
     override suspend fun clear() {
-        authenticatedUserServerIdDataStoreItemProvider.remove()
-        authenticatedUserAccountTypeDataStoreItemProvider.remove()
+        try {
+            authenticatedUserServerIdDataStoreItemProvider.remove()
+            authenticatedUserAccountTypeDataStoreItemProvider.remove()
+        } catch (e: Exception) {
+            LoggerHelper.logger.e(e, TAG, "$CLASS_NAME|clear|failed to clear auth data: ${e.message}")
+            throw e
+        }
     }
 }

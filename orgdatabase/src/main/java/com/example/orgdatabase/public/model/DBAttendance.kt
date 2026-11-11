@@ -5,6 +5,7 @@ import androidx.annotation.StringDef
 data class DBAttendance(
     val id: Long = 0,
     val accountId: Long,
+    val serverId: String? = null,
     val checkIn: Long,
     val checkOut: Long,
     val date: Long,

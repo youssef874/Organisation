@@ -63,7 +63,7 @@ class AttendanceViewModel @Inject constructor(
         }
 
         fun createDefaultRecord(date: LocalDate): AttendanceRecord = AttendanceRecord(
-            id = "${date.year}_${date.monthValue}_${date.dayOfMonth}",
+            id = 0L,
             dayOfMonth = date.dayOfMonth,
             dayOfWeek = date.dayOfWeek.name,
             monthOfYear = date.monthValue,
@@ -95,7 +95,7 @@ class AttendanceViewModel @Inject constructor(
     )
 
     private fun getSelectedDay(currentDay: AttendanceRecord?) = currentDay ?: AttendanceRecord(
-        id = "${LocalDate.now()}",
+        id = 0L,
         dayOfWeek = LocalDate.now().dayOfWeek.name,
         dayOfMonth = LocalDate.now().dayOfMonth,
         year = LocalDate.now().year,
@@ -113,7 +113,12 @@ class AttendanceViewModel @Inject constructor(
                 attendanceRepository.observeUserAttendanceReportViaRanger(
                     start = window.start,
                     end = window.end
-                )
+                ).also {
+                    LoggerHelper.logger.d(
+                        TAG,
+                        "$CLASS_NAME|cachedDays| data: $it"
+                    )
+                }
             }
             .map { rows ->
                 rows.associateBy { record -> record.date }
@@ -200,6 +205,10 @@ class AttendanceViewModel @Inject constructor(
                     ) {
                         it.toList()
                     }.collect { list ->
+                        LoggerHelper.logger.d(
+                            TAG,
+                            "$CLASS_NAME|observeAttendingStats| $list"
+                        )
                         _attendingStats.update { list }
                         _isHeaderStatsLoading.update { false }
                     }
@@ -268,7 +277,8 @@ class AttendanceViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     val isRequestButtonVisible: StateFlow<Boolean> = selectedDay.map {
-        (it.date >= LocalDate.now() && (it.status != AttendanceStatus.Holiday && it.status != AttendanceStatus.Weekend)).also {result->
+        ((it.date >= LocalDate.now()) &&
+                (it.status != AttendanceStatus.Holiday && it.status != AttendanceStatus.Weekend)).also {result->
             Log.d("YOUSSEF","new selected day: ${it.date}, isVisible: $result")
         }
     }.stateIn(

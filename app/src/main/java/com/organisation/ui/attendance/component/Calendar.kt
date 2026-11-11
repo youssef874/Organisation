@@ -286,7 +286,7 @@ fun CalendarGrid(
             item(key = day) {
                 val date = yearMonth.atDay(day)
                 val record = attendanceMap[date] ?: AttendanceRecord(
-                    id = "${currentMonthDate.year}_${currentMonthDate.monthValue}_$day",
+                    id = date.toEpochDay(),
                     dayOfMonth = day,
                     dayOfWeek = date.dayOfWeek.name,
                     monthOfYear = currentMonthDate.monthValue,

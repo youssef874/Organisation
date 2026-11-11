@@ -1,8 +1,8 @@
 package com.example.orgcore.internal.account.request
 
-import com.example.orgcore.api.account.model.AccountUserType
-import com.example.orgcore.commun.NetworkResult
+import com.example.orgcore.commun.FakeData
 import com.example.orgcore.commun.ServerRequest
+import com.example.orgcore.commun.model.NetworkResult
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
 
@@ -22,35 +22,12 @@ internal class FakeAccountOwnerRequest(
         if (shouldThrowException) {
             throw RuntimeException("Unexpected server error")
         }
-        val account = when(
-            authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(null)
-        ){
-            AccountUserType.WORKER-> Account(
-                id = "1",
-                name = "WORKER",
-                email = "worker@gmail.com",
-                phoneNumber = "12345678",
-                image = null,
-                type = AccountUserType.WORKER
-            )
 
-            AccountUserType.MANAGER->Account(
-                id = "2",
-                name = "MANAGER",
-                email = "manager@gmail.com",
-                phoneNumber = "25836911",
-                image = null,
-                type = AccountUserType.MANAGER
-            )
-            else -> Account(
-                id = "3",
-                name = "BOSS",
-                email = "boss@gmail.com",
-                phoneNumber = "0000000",
-                image = null,
-                type = AccountUserType.WORKER
-            )
-        }
+        val accountType = authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider
+            .getData(-1)
+        val account = FakeData.getFakeData(
+            accountType
+        ).account
         return if (responseCode == 200){
             NetworkResult.Success(account)
         }else{

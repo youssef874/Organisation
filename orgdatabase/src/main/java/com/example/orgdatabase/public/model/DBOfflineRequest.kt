@@ -3,7 +3,6 @@ package com.example.orgdatabase.public.model
 import androidx.annotation.StringDef
 
 data class DBOfflineRequest(
-    val id: Long = 0L,
     val requestUuid: String,
     val requestType: @OfflineRequestType String,
     val priority: Int = 0,

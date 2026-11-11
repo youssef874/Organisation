@@ -17,11 +17,11 @@ internal class UserAccountCache(
 
     companion object{
         private const val CLASS_NAME = "UserAccountCache"
-        private const val TAG = "ACCOUNT_CACHE"
+        private const val TAG = "ACCOUNT"
     }
 
     override suspend fun cache(data: Account): Boolean {
-        LoggerHelper.logger.d(
+        LoggerHelper.logger.i(
             TAG,
             "$CLASS_NAME|cache|data id : ${data.id}"
         )

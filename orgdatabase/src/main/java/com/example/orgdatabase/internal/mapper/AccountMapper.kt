@@ -42,6 +42,7 @@ internal fun AttendanceEntity.toDBAttendance(): DBAttendance {
     return DBAttendance(
         id = id,
         accountId = accountId,
+        serverId = serverId,
         checkIn = checkIn,
         checkOut = checkOut,
         date = date,
@@ -56,6 +57,7 @@ internal fun DBAttendance.toAttendanceEntity(): AttendanceEntity {
     return AttendanceEntity(
         id = id,
         accountId = accountId,
+        serverId = serverId,
         checkIn = checkIn,
         checkOut = checkOut,
         date = date,

@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.data.store.preference.core)
     implementation(libs.data.store.preference)
     implementation(libs.android.startup)
+    implementation(libs.room.paging)
     testImplementation(libs.junit)
     testImplementation(libs.roboletric)
     testImplementation(libs.mokito)

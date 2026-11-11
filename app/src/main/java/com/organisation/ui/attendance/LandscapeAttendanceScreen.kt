@@ -228,7 +228,7 @@ fun LandscapeAttendanceScreenLoadingPreview() {
     val selectedDay = remember {
         MutableStateFlow(
             AttendanceRecord(
-                id = "1",
+                id = 1L,
                 dayOfMonth = 1,
                 dayOfWeek = "Monday",
                 status = AttendanceStatus.None

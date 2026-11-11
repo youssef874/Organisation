@@ -290,6 +290,17 @@ internal class AccountProviderImplTest {
     }
 
     @Test
+    fun observeAttendancesByDateRangeChunked_returnsCorrectChunk() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("User"))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 100L, attendanceStatus = AttendanceStatusType.PRESENT))
+        attendanceDao.insert(AttendanceEntity(accountId = accountId, checkIn = 0, checkOut = 0, date = 200L, attendanceStatus = AttendanceStatusType.PRESENT))
+
+        val observedChunk = accountProvider.observeAttendancesByDateRangeChunked(accountId, 50L, 250L, page = 0, pageSize = 1).first()
+        assertEquals(1, observedChunk.size)
+        assertEquals(100L, observedChunk[0].date)
+    }
+
+    @Test
     fun getAttendancesByAccountIdChunked_returnsCorrectChunk() = runTest {
         val accountId = accountDao.insert(createAccountEntity("User"))
         repeat(5) {
@@ -420,6 +431,95 @@ internal class AccountProviderImplTest {
         assertTrue(result)
         val all = accountDao.observeAllAccounts().first()
         assertEquals(2, all.size)
+    }
+
+    @Test
+    fun getAttendanceCountByStatusAndDateRange_returnsCorrectCount() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("AttendanceUser"))
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 2000L,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+        attendanceDao.insert(
+            AttendanceEntity(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 3000L,
+                attendanceStatus = AttendanceStatusType.PRESENT
+            )
+        )
+
+        val absentCount = accountProvider.getAttendanceCountByStatusAndDateRange(
+            accountId = accountId,
+            attendanceStatus = AttendanceStatusType.ABSENT,
+            startDate = 500L,
+            endDate = 2500L
+        )
+
+        assertEquals(2, absentCount)
+    }
+
+    @Test
+    fun addAttendance_insertsRecordSuccessfully() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("AttendanceUser"))
+        val dbAttendance = DBAttendance(
+            accountId = accountId,
+            checkIn = 100L,
+            checkOut = 200L,
+            date = 1000L,
+            attendanceStatus = AttendanceStatusType.PRESENT,
+            isApproved = true
+        )
+
+        val result = accountProvider.addAttendance(dbAttendance)
+        assertTrue(result)
+
+        val records = attendanceDao.getAttendanceByAccountId(accountId)
+        assertEquals(1, records.size)
+        assertEquals(AttendanceStatusType.PRESENT, records[0].attendanceStatus)
+        assertTrue(records[0].isApproved)
+    }
+
+    @Test
+    fun addAttendances_batchInsertsRecordsSuccessfully() = runTest {
+        val accountId = accountDao.insert(createAccountEntity("BatchAttendanceUser"))
+        val attendances = listOf(
+            DBAttendance(
+                accountId = accountId,
+                checkIn = 100L,
+                checkOut = 200L,
+                date = 1000L,
+                attendanceStatus = AttendanceStatusType.PRESENT
+            ),
+            DBAttendance(
+                accountId = accountId,
+                checkIn = 300L,
+                checkOut = 400L,
+                date = 2000L,
+                attendanceStatus = AttendanceStatusType.ABSENT
+            )
+        )
+
+        val result = accountProvider.addAttendances(attendances)
+        assertTrue(result)
+
+        val records = attendanceDao.getAttendanceByAccountId(accountId)
+        assertEquals(2, records.size)
     }
 
     private fun createAccountEntity(name: String) = AccountEntity(

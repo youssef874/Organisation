@@ -1,10 +1,11 @@
 package com.example.orgcore.internal.account.Authentication.request
 
-import com.example.orgcore.api.account.model.AuthenticationErrorType
-import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.api.account.model.AccountUserType
-import com.example.orgcore.commun.NetworkResult
+import com.example.orgcore.api.account.model.AuthenticationErrorType
+import com.example.orgcore.commun.FakeData
 import com.example.orgcore.commun.ServerRequest
+import com.example.orgcore.commun.model.NetworkResult
+import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -37,36 +38,21 @@ internal class FakeAuthenticationRequest(
 
                 when (userName) {
                     "admin" -> NetworkResult.Success(
-                        Account(
-                            id = "1",
-                            name = "Admin",
-                            phoneNumber = "123456",
-                            email = "admin@example.com",
-                            image = null,
-                            type = AccountUserType.BOSS
-                        )
+                        FakeData.getFakeData(
+                            AccountUserType.BOSS
+                        ).account
                     )
 
                     "manager" -> NetworkResult.Success(
-                        Account(
-                            id = "2",
-                            name = "Manager",
-                            phoneNumber = "234567",
-                            email = "manager@example.com",
-                            image = null,
-                            type = AccountUserType.MANAGER
-                        )
+                        FakeData.getFakeData(
+                            AccountUserType.MANAGER
+                        ).account
                     )
 
                     "worker" -> NetworkResult.Success(
-                        Account(
-                            id = "3",
-                            name = "Worker",
-                            phoneNumber = "345678",
-                            email = "worker@example.com",
-                            image = null,
-                            type = AccountUserType.WORKER
-                        )
+                        FakeData.getFakeData(
+                            AccountUserType.WORKER
+                        ).account
                     )
 
                     else -> NetworkResult.Error(

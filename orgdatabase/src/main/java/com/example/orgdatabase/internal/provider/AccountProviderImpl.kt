@@ -9,12 +9,12 @@ import com.example.orgdatabase.internal.dao.AttendanceDao
 import com.example.orgdatabase.internal.dao.EmailDao
 import com.example.orgdatabase.internal.dao.PhoneNumberDao
 import com.example.orgdatabase.internal.db.OrganisationDatabase
-import com.example.orgdatabase.internal.entity.AttendanceEntity
 import com.example.orgdatabase.internal.entity.EmailEntity
 import com.example.orgdatabase.internal.entity.PhoneNumberEntity
 import com.example.orgdatabase.internal.mapper.extractEmails
 import com.example.orgdatabase.internal.mapper.extractPhoneNumbers
 import com.example.orgdatabase.internal.mapper.toAccountEntity
+import com.example.orgdatabase.internal.mapper.toAttendanceEntity
 import com.example.orgdatabase.internal.mapper.toDBAccount
 import com.example.orgdatabase.internal.mapper.toDBAttendance
 import com.example.orgdatabase.public.model.DBAccount
@@ -42,8 +42,10 @@ internal class AccountProviderImpl(
         }, phoneNumbers: ${dbAccount.phoneNumbers}")
         return try {
             db.withTransaction {
-                val accountId = accountDao.insert(dbAccount.toAccountEntity())
+                val accountId = accountDao.upsert(dbAccount.toAccountEntity())
                 if (accountId != -1L) {
+                    emailDao.deleteEmailsByAccountId(accountId)
+                    phoneNumberDao.deletePhoneNumbersByAccountId(accountId)
                     emailDao.insert(dbAccount.extractEmails(accountId))
                     phoneNumberDao.insert(dbAccount.extractPhoneNumbers(accountId))
                     LoggerHelper.logger.d(
@@ -69,8 +71,10 @@ internal class AccountProviderImpl(
         return try {
             db.withTransaction {
                 accounts.all { account ->
-                    val accountId = accountDao.insert(account.toAccountEntity())
+                    val accountId = accountDao.upsert(account.toAccountEntity())
                     if (accountId != -1L) {
+                        emailDao.deleteEmailsByAccountId(accountId)
+                        phoneNumberDao.deletePhoneNumbersByAccountId(accountId)
                         emailDao.insert(account.extractEmails(accountId))
                         phoneNumberDao.insert(account.extractPhoneNumbers(accountId))
                         true
@@ -157,24 +161,36 @@ internal class AccountProviderImpl(
         return try {
             db.withTransaction {
                 attendanceDao.deleteAttendanceByAccountId(accountId)
-                val entities = attendances.map {
-                    AttendanceEntity(
-                        id = it.id,
-                        accountId = accountId,
-                        checkIn = it.checkIn,
-                        checkOut = it.checkOut,
-                        date = it.date,
-                        attendanceStatus = it.attendanceStatus,
-                        requestReason = it.requestReason,
-                        isApproved = it.isApproved,
-                        isRequestInProgress = it.isRequestInProgress
-                    )
-                }
+                val entities = attendances.map { it.copy(accountId = accountId).toAttendanceEntity() }
                 val insertedIds = attendanceDao.insert(entities)
                 insertedIds.size == attendances.size
             }
         } catch (e: Exception) {
             LoggerHelper.logger.e(TAG, "$CLASS_NAME updateAttendances exception: ${e.message}")
+            false
+        }
+    }
+
+    override suspend fun addAttendance(attendance: DBAttendance): Boolean {
+        LoggerHelper.logger.d(TAG, "$CLASS_NAME addAttendance accountId: ${attendance.accountId}")
+        return try {
+            val entity = attendance.toAttendanceEntity()
+            val id = attendanceDao.upsert(entity)
+            id != -1L
+        } catch (e: Exception) {
+            LoggerHelper.logger.e(TAG, "$CLASS_NAME addAttendance exception: ${e.message}")
+            false
+        }
+    }
+
+    override suspend fun addAttendances(attendances: List<DBAttendance>): Boolean {
+        LoggerHelper.logger.d(TAG, "$CLASS_NAME addAttendances size: ${attendances.size}")
+        return try {
+            val entities = attendances.map { it.toAttendanceEntity() }
+            val results = attendanceDao.upsert(entities)
+            results.all { it != -1L }
+        } catch (e: Exception) {
+            LoggerHelper.logger.e(TAG, "$CLASS_NAME addAttendances exception: ${e.message}")
             false
         }
     }
@@ -209,12 +225,34 @@ internal class AccountProviderImpl(
         return attendanceDao.getAttendancesByDateRange(accountId, startDate, endDate).map { it.toDBAttendance() }
     }
 
+    override suspend fun getAttendanceCountByStatusAndDateRange(
+        accountId: Long,
+        attendanceStatus: String,
+        startDate: Long,
+        endDate: Long
+    ): Int {
+        return try {
+            LoggerHelper.logger.d(
+                TAG,
+                "$CLASS_NAME getAttendanceCountByStatusAndDateRange id: $accountId, status: $attendanceStatus, startDate: $startDate, endDate: $endDate"
+            )
+            attendanceDao.getAttendanceCountByStatusAndDateRange(accountId, attendanceStatus, startDate, endDate)
+        } catch (e: Exception) {
+            LoggerHelper.logger.e(TAG, "$CLASS_NAME getAttendanceCountByStatusAndDateRange exception: ${e.message}")
+            0
+        }
+    }
+
     override fun observeAttendancesByDateRange(accountId: Long, startDate: Long, endDate: Long): Flow<List<DBAttendance>> {
         return attendanceDao.observeAttendancesByDateRange(accountId, startDate, endDate).map { list -> list.map { it.toDBAttendance() } }
     }
 
     override suspend fun getAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): List<DBAttendance> {
         return attendanceDao.getAttendancesByDateRangeChunked(accountId, startDate, endDate, pageSize, pageSize * page).map { it.toDBAttendance() }
+    }
+
+    override fun observeAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): Flow<List<DBAttendance>> {
+        return attendanceDao.observeAttendancesByDateRangeChunked(accountId, startDate, endDate, pageSize, pageSize * page).map { list -> list.map { it.toDBAttendance() } }
     }
 
     override fun getAttendancesByDateRangePaged(accountId: Long, startDate: Long, endDate: Long): PagingSource<Int, DBAttendance> {
@@ -236,6 +274,18 @@ internal class AccountProviderImpl(
 
     override suspend fun getAccountWithDetailsById(accountId: Long): DBAccount? {
         return accountDao.getAccountWithDetailsByIdSuspend(accountId)?.toDBAccount()
+    }
+
+    override suspend fun getAccountByServerId(serverId: String): DBAccount? {
+        return accountDao.getAccountWithDetailsByServerIdSuspend(serverId)?.toDBAccount()
+    }
+
+    override suspend fun getUserAccount(): DBAccount? {
+        return accountDao.getUserAccountWithDetailsSuspend()?.toDBAccount()
+    }
+
+    override suspend fun getAttendanceByServerId(serverId: String): DBAttendance? {
+        return attendanceDao.getAttendanceByServerId(serverId)?.toDBAttendance()
     }
 
     override fun observeAccountWithDetailsById(accountId: Long): Flow<DBAccount?> {

@@ -24,6 +24,13 @@ internal interface AccountDao : BaseDao<AccountEntity> {
     @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} WHERE ${AccountEntity.COLUMN_ID} = :id")
     suspend fun getAccountById(id: Long): AccountEntity?
 
+    @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} WHERE ${AccountEntity.COLUMN_SERVER_ID} = :serverId LIMIT 1")
+    suspend fun getAccountByServerId(serverId: String): AccountEntity?
+
+    @Transaction
+    @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} WHERE ${AccountEntity.COLUMN_SERVER_ID} = :serverId LIMIT 1")
+    suspend fun getAccountWithDetailsByServerIdSuspend(serverId: String): AccountWithDetails?
+
     @Transaction
     @Query("SELECT * FROM ${AccountEntity.TABLE_NAME}")
     fun getAllAccountsWithDetails(): Flow<List<AccountWithDetails>>
@@ -56,6 +63,10 @@ internal interface AccountDao : BaseDao<AccountEntity> {
 
     @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} where ${AccountEntity.COLUMN_IS_USER} = 1 LIMIT 1")
     suspend fun getUserAccount(): AccountEntity?
+
+    @Transaction
+    @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} where ${AccountEntity.COLUMN_IS_USER} = 1 LIMIT 1")
+    suspend fun getUserAccountWithDetailsSuspend(): AccountWithDetails?
 
     @Query("SELECT * FROM ${AccountEntity.TABLE_NAME} where ${AccountEntity.COLUMN_IS_USER} = 1 LIMIT 1")
     fun getUserAccountFlow(): Flow<AccountEntity?>

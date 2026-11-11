@@ -2,9 +2,9 @@ package com.example.orgcore.internal.account.service
 
 import com.example.orgcore.api.account.event.AccountFetchDataResult
 import com.example.orgcore.commun.OrgEventNotifier
-import com.example.orgcore.commun.SyncResult
 import com.example.orgcore.commun.Synchronizer
 import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.commun.model.SyncResult
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.runBlocking
@@ -44,8 +44,7 @@ class AccountServiceImplTest {
         accountService = AccountServiceImpl(
             accountSynchronizer,
             networkMonitor,
-            accountEventNotifier,
-            authenticationProvider
+            accountEventNotifier
         )
     }
 
@@ -57,17 +56,6 @@ class AccountServiceImplTest {
 
         val lastEvent = accountEventNotifier.lastEvent as? AccountFetchDataResult
         assertTrue(lastEvent?.result is SyncResult.Error.NetworkError)
-    }
-
-    @Test
-    fun `requestData returns Unauthorized when user not authenticated`() = runTest {
-        `when`(networkMonitor.isConnected()).thenReturn(true)
-        // User not authenticated by default in FakeAuthenticationProvider
-
-        accountService.requestData()
-
-        val lastEvent = accountEventNotifier.lastEvent as? AccountFetchDataResult
-        assertTrue(lastEvent?.result is SyncResult.Error.Unauthorized)
     }
 
     @Test

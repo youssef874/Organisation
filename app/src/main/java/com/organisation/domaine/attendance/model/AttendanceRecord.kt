@@ -3,7 +3,7 @@ package com.organisation.domaine.attendance.model
 import java.time.LocalDate
 
 data class AttendanceRecord(
-    val id: String,
+    val id: Long,
     val dayOfMonth: Int,
     val dayOfWeek: String,
     val checkIn: String? = null,

@@ -18,7 +18,8 @@ import androidx.room.PrimaryKey
     ],
     indices = [
         Index(value = [AttendanceEntity.COLUMN_ACCOUNT_ID]),
-        Index(value = [AttendanceEntity.COLUMN_DATE, AttendanceEntity.COLUMN_ATTENDANCE_STATUS])
+        Index(value = [AttendanceEntity.COLUMN_DATE, AttendanceEntity.COLUMN_ATTENDANCE_STATUS]),
+        Index(value = [AttendanceEntity.COLUMN_SERVER_ID], unique = true)
     ]
 )
 internal data class AttendanceEntity(
@@ -27,6 +28,8 @@ internal data class AttendanceEntity(
     val id: Long = 0,
     @ColumnInfo(name = COLUMN_ACCOUNT_ID)
     val accountId: Long,
+    @ColumnInfo(name = COLUMN_SERVER_ID)
+    val serverId: String? = null,
     @ColumnInfo(name = COLUMN_CHECK_IN)
     val checkIn: Long,
     @ColumnInfo(name = COLUMN_CHECK_OUT)
@@ -46,6 +49,7 @@ internal data class AttendanceEntity(
         const val TABLE_NAME = "attendance"
         const val COLUMN_ID = "id"
         const val COLUMN_ACCOUNT_ID = "account_id"
+        const val COLUMN_SERVER_ID = "server_id"
         const val COLUMN_CHECK_IN = "check_in"
         const val COLUMN_CHECK_OUT = "check_out"
         const val COLUMN_DATE = "date"

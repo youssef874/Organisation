@@ -373,7 +373,7 @@ class LandscapeAttendanceScreenTest {
         val targetDate = LocalDate.now()
         val selectedDay = MutableStateFlow(
             AttendanceRecord(
-                id = "test",
+                id = 1L,
                 dayOfMonth = targetDate.dayOfMonth,
                 dayOfWeek = targetDate.dayOfWeek.name,
                 status = AttendanceStatus.Present

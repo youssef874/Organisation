@@ -19,7 +19,7 @@ val sampleStats = listOf(
 val dummyRecords = mapOf(
     LocalDate.of(2026, 9, 1) to
             AttendanceRecord(
-                "1",
+                1L,
                 1,
                 "Saturday",
                 null,
@@ -30,7 +30,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 2) to
             AttendanceRecord(
-                "2",
+                2L,
                 2,
                 "Sunday",
                 null,
@@ -41,7 +41,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 3) to
             AttendanceRecord(
-                "3",
+                3L,
                 3,
                 "Monday",
                 "09:00",
@@ -52,7 +52,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 4) to
             AttendanceRecord(
-                "4",
+                4L,
                 4,
                 "Tuesday",
                 "08:55",
@@ -63,7 +63,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 5) to
             AttendanceRecord(
-                "5",
+                5L,
                 5,
                 "Wednesday",
                 null,
@@ -74,7 +74,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 6) to
             AttendanceRecord(
-                "6",
+                6L,
                 6,
                 "Thursday",
                 "09:10",
@@ -85,7 +85,7 @@ val dummyRecords = mapOf(
                 year = 2026
     ),
     LocalDate.of(2026, 9, 7) to AttendanceRecord(
-        "7",
+        7L,
         7,
         "Friday",
         null,
@@ -97,7 +97,7 @@ val dummyRecords = mapOf(
     ),
     LocalDate.of(2026, 9, 8) to
             AttendanceRecord(
-                "8",
+                8L,
                 8,
                 "Saturday",
                 null,
@@ -108,7 +108,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 9) to
             AttendanceRecord(
-                "9",
+                9L,
                 9,
                 "Sunday",
                 null,
@@ -119,7 +119,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 10) to
             AttendanceRecord(
-                "10",
+                10L,
                 10,
                 "Monday",
                 "08:45",
@@ -130,7 +130,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 11) to
             AttendanceRecord(
-                "11",
+                11L,
                 11,
                 "Tuesday",
                 "09:00",
@@ -141,7 +141,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026, 9, 24) to
             AttendanceRecord(
-                id = "24",
+                id = 24L,
                 dayOfMonth = 24,
                 dayOfWeek = "Monday",
                 checkIn = "09:00",
@@ -152,7 +152,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,25) to
             AttendanceRecord(
-                id = "25",
+                id = 25L,
                 dayOfMonth = 25,
                 dayOfWeek = "Tuesday",
                 checkIn = "08:55",
@@ -163,7 +163,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,26) to
             AttendanceRecord(
-                id = "26",
+                id = 26L,
                 dayOfMonth = 26,
                 dayOfWeek = "Wednesday",
                 checkIn = null,
@@ -174,7 +174,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,27) to
             AttendanceRecord(
-                id = "27",
+                id = 27L,
                 dayOfMonth = 27,
                 dayOfWeek = "Thursday",
                 checkIn = "09:10",
@@ -186,7 +186,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,28) to
             AttendanceRecord(
-                id = "28",
+                id = 28L,
                 dayOfMonth = 28,
                 dayOfWeek = "Friday",
                 checkIn = null,
@@ -198,7 +198,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,29) to
             AttendanceRecord(
-                id = "29",
+                id = 29L,
                 dayOfMonth = 29,
                 dayOfWeek = "Saturday",
                 checkIn = null,
@@ -209,7 +209,7 @@ val dummyRecords = mapOf(
             ),
     LocalDate.of(2026,9,30) to
             AttendanceRecord(
-                id = "30",
+                id = 30L,
                 dayOfMonth = 30,
                 dayOfWeek = "Sunday",
                 checkIn = null,

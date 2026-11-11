@@ -1,5 +1,6 @@
 package com.example.orgcore.commun
 
+import com.example.orgcore.commun.model.SyncResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -8,7 +9,7 @@ import kotlinx.coroutines.coroutineScope
  * [Synchronizer] implementation that aggregates multiple synchronizers.
  *
  * It executes all provided [synchronizers] in parallel using Coroutines and
- * returns a combined [SyncResult].
+ * returns a combined [com.example.orgcore.commun.model.SyncResult].
  *
  * @property synchronizers The list of synchronizers to be executed.
  */
@@ -18,7 +19,6 @@ internal class AccountCompositeSynchronizer(
 
     override suspend fun synchronize(): SyncResult = coroutineScope {
         val results = synchronizers.map { async { it.synchronize() } }.awaitAll()
-        println("test all: $results")
 
         val hasError = results.any { it is SyncResult.Error }
         val hasSuccess = results.any { it is SyncResult.Success || it is SyncResult.PartialSuccess }

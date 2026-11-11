@@ -12,6 +12,8 @@ internal class AccountSettingsImpl(
     companion object{
         private const val IS_USER_ACCOUNT_CACHED = "is_user_account_cached"
         private const val IS_USER_RELATED_ACCOUNT_CACHED = "is_user_related_account_cached"
+
+        private const val IS_USER_ATTENDANCE_RAPPORT_CACHED = "is_user_attendance_rapport_cached"
     }
 
     override val isUserAccountSynchronized: DataStoreItemProvider<Boolean>
@@ -20,11 +22,11 @@ internal class AccountSettingsImpl(
                 booleanDataStoreProvider.put(IS_USER_ACCOUNT_CACHED,data)
             }
 
-            override fun listenToDataChanges(defaultData: Boolean?): Flow<Boolean?> {
+            override fun listenToDataChanges(defaultData: Boolean): Flow<Boolean> {
                 return booleanDataStoreProvider.observe(IS_USER_ACCOUNT_CACHED,defaultData)
             }
 
-            override suspend fun getData(defaultData: Boolean?): Boolean? {
+            override suspend fun getData(defaultData: Boolean): Boolean {
                 return listenToDataChanges(defaultData).firstOrNull()?:defaultData
             }
 
@@ -38,16 +40,34 @@ internal class AccountSettingsImpl(
                 booleanDataStoreProvider.put(IS_USER_RELATED_ACCOUNT_CACHED,data)
             }
 
-            override fun listenToDataChanges(defaultData: Boolean?): Flow<Boolean?> {
+            override fun listenToDataChanges(defaultData: Boolean): Flow<Boolean> {
                 return booleanDataStoreProvider.observe(IS_USER_RELATED_ACCOUNT_CACHED,defaultData)
             }
 
-            override suspend fun getData(defaultData: Boolean?): Boolean? {
+            override suspend fun getData(defaultData: Boolean): Boolean {
                 return listenToDataChanges(defaultData).firstOrNull()?:defaultData
             }
 
             override suspend fun remove(): Boolean? {
                return booleanDataStoreProvider.remove(IS_USER_RELATED_ACCOUNT_CACHED)
+            }
+        }
+    override val isUserAttendanceRapportSynchronized: DataStoreItemProvider<Boolean>
+        get() = object : DataStoreItemProvider<Boolean> {
+            override suspend fun updateData(data: Boolean) {
+                booleanDataStoreProvider.put(IS_USER_ATTENDANCE_RAPPORT_CACHED,data)
+            }
+
+            override fun listenToDataChanges(defaultData: Boolean): Flow<Boolean> {
+               return booleanDataStoreProvider.observe(IS_USER_ATTENDANCE_RAPPORT_CACHED, defaultData)
+            }
+
+            override suspend fun getData(defaultData: Boolean): Boolean {
+                return booleanDataStoreProvider.observe(IS_USER_ATTENDANCE_RAPPORT_CACHED,defaultData).firstOrNull()?:defaultData
+            }
+
+            override suspend fun remove(): Boolean? {
+                return booleanDataStoreProvider.remove(IS_USER_ATTENDANCE_RAPPORT_CACHED)
             }
         }
 }

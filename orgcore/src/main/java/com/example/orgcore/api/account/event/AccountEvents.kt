@@ -1,7 +1,7 @@
 package com.example.orgcore.api.account.event
 
-import com.example.orgcore.commun.SyncResult
 import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.commun.model.SyncResult
 
 
 data class AccountFetchDataResult(

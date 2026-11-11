@@ -17,7 +17,7 @@ internal interface DataStoreProvider<T> {
      * @param defaultValue: the return value if there no value for the requested key
      * @return [Flow] of [T] contain either the existed value if there are any otherwise it will return the provided default value
      */
-    fun observe(key: String,defaultValue: T?): Flow<T?>
+    fun observe(key: String,defaultValue: T): Flow<T>
 
     /**
      * Remove the data from datastore  with the provided key

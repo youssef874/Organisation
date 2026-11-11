@@ -71,6 +71,22 @@ internal interface AccountProvider {
     suspend fun updateAttendances(accountId: Long, attendances: List<DBAttendance>): Boolean
 
     /**
+     * Adds a single attendance record.
+     *
+     * @param attendance The [DBAttendance] record to be added.
+     * @return `true` if added successfully, `false` otherwise.
+     */
+    suspend fun addAttendance(attendance: DBAttendance): Boolean
+
+    /**
+     * Adds a list of attendance records in a batch.
+     *
+     * @param attendances The list of [DBAttendance] records to be added.
+     * @return `true` if all records were added successfully, `false` otherwise.
+     */
+    suspend fun addAttendances(attendances: List<DBAttendance>): Boolean
+
+    /**
      * Updates the attendance status for a specific account on a given date.
      *
      * @param accountId The ID of the account.
@@ -125,6 +141,23 @@ internal interface AccountProvider {
     suspend fun getAttendancesByDateRange(accountId: Long, startDate: Long, endDate: Long): List<DBAttendance>
 
     /**
+     * Retrieves the count of attendance records for a specific account with a given attendance status within a date range
+     * (e.g., how many days the account was absent or present in the specified range).
+     *
+     * @param accountId The ID of the account.
+     * @param attendanceStatus The attendance status to filter by, restricted to valid values defined in [AttendanceStatusType].
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @return The count of matching attendance records.
+     */
+    suspend fun getAttendanceCountByStatusAndDateRange(
+        accountId: Long,
+        @AttendanceStatusType attendanceStatus: String,
+        startDate: Long,
+        endDate: Long
+    ): Int
+
+    /**
      * Observes attendance records for a specific account within a date range.
      *
      * @param accountId The ID of the account.
@@ -145,6 +178,18 @@ internal interface AccountProvider {
      * @return A list of [DBAttendance] records for the requested chunk.
      */
     suspend fun getAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): List<DBAttendance>
+
+    /**
+     * Observes a chunk (page) of attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @param page The page number (starting from 0).
+     * @param pageSize The number of records per page.
+     * @return A [Flow] emitting a list of [DBAttendance] records for the requested chunk whenever changes occur.
+     */
+    fun observeAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): Flow<List<DBAttendance>>
 
     /**
      * Returns a [PagingSource] for paginated access to attendance records for a specific account within a date range.
@@ -181,6 +226,29 @@ internal interface AccountProvider {
      * @return The [DBAccount] if found, or `null` otherwise.
      */
     suspend fun getAccountWithDetailsById(accountId: Long): DBAccount?
+
+    /**
+     * Retrieves an account by its server ID.
+     *
+     * @param serverId The server ID of the account.
+     * @return The [DBAccount] if found, or `null` otherwise.
+     */
+    suspend fun getAccountByServerId(serverId: String): DBAccount?
+
+    /**
+     * Retrieves the current user account.
+     *
+     * @return The [DBAccount] marked as user, or `null` if not found.
+     */
+    suspend fun getUserAccount(): DBAccount?
+
+    /**
+     * Retrieves an attendance record by its server ID.
+     *
+     * @param serverId The server ID of the attendance record.
+     * @return The [DBAttendance] if found, or `null` otherwise.
+     */
+    suspend fun getAttendanceByServerId(serverId: String): DBAttendance?
 
     /**
      * Observes changes to a specific account and its details.

@@ -5,7 +5,6 @@ import com.example.orgdatabase.public.model.DBOfflineRequest
 
 internal fun OfflineRequestEntity.toDBOfflineRequest(): DBOfflineRequest {
     return DBOfflineRequest(
-        id = id,
         requestUuid = requestUuid,
         requestType = requestType,
         priority = priority,
@@ -17,7 +16,7 @@ internal fun OfflineRequestEntity.toDBOfflineRequest(): DBOfflineRequest {
 
 internal fun DBOfflineRequest.toOfflineRequestEntity(): OfflineRequestEntity {
     return OfflineRequestEntity(
-        id = id,
+        id = 0L,
         requestUuid = requestUuid,
         requestType = requestType,
         priority = priority,

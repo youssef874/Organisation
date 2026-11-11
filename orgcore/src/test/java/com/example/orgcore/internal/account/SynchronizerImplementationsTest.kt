@@ -1,10 +1,14 @@
 package com.example.orgcore.internal.account
 
 import com.example.orgcore.api.account.model.AccountUserType
+import com.example.orgcore.commun.FakeData
 import com.example.orgcore.commun.OfflineCache
 import com.example.orgcore.commun.ServerRequest
-import com.example.orgcore.commun.SyncResult
+import com.example.orgcore.commun.anyObject
+import com.example.orgcore.commun.capture
+import com.example.orgcore.commun.model.SyncResult
 import com.example.orgcore.internal.FakeCache
+import com.example.orgcore.internal.account.Authentication.mapper.toDBAccount
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
@@ -12,12 +16,20 @@ import com.example.orgcore.internal.account.request.FakeAccountOwnerRequest
 import com.example.orgcore.internal.account.request.FakeRequestRelatedUserAccount
 import com.example.orgcore.internal.account.sync.RelatedAccountsSynchronizer
 import com.example.orgcore.internal.account.sync.UserAccountSynchronizer
+import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
+import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
+import com.example.orgcore.internal.attendance.sync.UserAttendanceRapportSynchronizer
+import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 
@@ -37,6 +49,13 @@ class SynchronizerImplementationsTest {
 
     private var accountSettings: AccountSettings = FakeAccountSetting()
 
+    @Mock
+    private lateinit var accountDataApi: AccountDataApi
+
+    private lateinit var attendanceRequest: FakeUserAttendanceRapportRequest
+
+    private lateinit var attendanceCache: UserAttendanceRapportCache
+
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
@@ -46,6 +65,8 @@ class SynchronizerImplementationsTest {
         relatedRequest = FakeRequestRelatedUserAccount(authenticationProvider)
         userCache = FakeCache()
         relatedCache = FakeCache()
+        attendanceRequest = FakeUserAttendanceRapportRequest(authenticationProvider)
+        attendanceCache = UserAttendanceRapportCache(accountDataApi)
     }
 
     @Test
@@ -53,14 +74,7 @@ class SynchronizerImplementationsTest {
         authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.updateData(
             AccountUserType.WORKER
         )
-        val account = Account(
-            id = "1",
-            name = "WORKER",
-            email = "worker@gmail.com",
-            phoneNumber = "12345678",
-            image = null,
-            type = AccountUserType.WORKER
-        )
+        val account = FakeData.getFakeData(AccountUserType.WORKER).account
 
 
         val sync = UserAccountSynchronizer(userRequest, userCache, accountSettings)
@@ -182,6 +196,101 @@ class SynchronizerImplementationsTest {
         val sync1 = UserAccountSynchronizer(userRequest, userCache, accountSettings)
         assertEquals(SyncResult.Error.NetworkError(), sync1.synchronize())
         assertTrue(!sync1.isSynchronized())
+    }
+
+    @Test
+    fun `UserAttendanceRapportSynchronizer delegates to cache and updates settings`() = runTest {
+        authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.updateData(
+            AccountUserType.WORKER
+        )
+        val mockAccount = FakeData.Employee.account.toDBAccount(isUser = true).copy(id = 1L)
+        `when`(accountDataApi.getAccountByServerId(anyString())).thenReturn(mockAccount)
+        `when`(accountDataApi.addAttendances(anyObject())).thenReturn(true)
+
+        val sync = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+        val result = sync.synchronize()
+
+        assertEquals(SyncResult.Success, result)
+        assertTrue(accountSettings.isUserAttendanceRapportSynchronized.getData(false))
+        assertTrue(sync.isSynchronized())
+    }
+
+    @Test
+    fun `UserAttendanceRapportSynchronizer handles unexpected server exceptions`() = runTest {
+        attendanceRequest.shouldThrowException = true
+        val sync = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+
+        val result = sync.synchronize()
+
+        assertTrue(result is SyncResult.Error.Unknown)
+        assertEquals("Unexpected server error", (result as SyncResult.Error.Unknown).exception?.message)
+        assertTrue(!sync.isSynchronized())
+    }
+
+    @Test
+    fun `UserAttendanceRapportSynchronizer fails cache leads to error`() = runTest {
+        authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.updateData(
+            AccountUserType.WORKER
+        )
+        val mockAccount = FakeData.Employee.account.toDBAccount(isUser = true).copy(id = 1L)
+        `when`(accountDataApi.getAccountByServerId(anyString())).thenReturn(mockAccount)
+        `when`(accountDataApi.addAttendances(anyObject())).thenReturn(false)
+
+        val sync = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+        assertEquals(SyncResult.Error.DatabaseError(), sync.synchronize())
+        assertTrue(!sync.isSynchronized())
+    }
+
+    @Test
+    fun `UserAttendanceRapportSynchronizer server response error`() = runTest {
+        authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.updateData(
+            AccountUserType.WORKER
+        )
+        attendanceRequest.responseCode = 401
+        val sync = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+        assertEquals(SyncResult.Error.Unauthorized("Error"), sync.synchronize())
+        assertTrue(!sync.isSynchronized())
+
+        attendanceRequest.responseCode = 500
+        val sync1 = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+        assertEquals(SyncResult.Error.NetworkError(), sync1.synchronize())
+        assertTrue(!sync1.isSynchronized())
+    }
+
+    @Test
+    fun `UserAttendanceRapportSynchronizer chunks large lists and updates settings`() = runTest {
+        authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.updateData(
+            AccountUserType.WORKER
+        )
+        val largeAttendanceList = List(205) { index ->
+            com.example.orgcore.internal.attendance.model.Attendance(
+                id = index.toString(),
+                serverAccountId = "acc_$index",
+                checkIn = 1000L,
+                checkOut = 2000L,
+                date = 1000000L,
+                attendanceStatus = com.example.orgcore.api.attendance.model.AttendanceStatus.PRESENT
+            )
+        }
+        attendanceRequest.attendanceOverride = largeAttendanceList
+        val mockAccount = FakeData.Employee.account.toDBAccount(isUser = true).copy(id = 1L)
+        `when`(accountDataApi.getAccountByServerId(anyString())).thenReturn(mockAccount)
+        `when`(accountDataApi.addAttendances(anyObject())).thenReturn(true)
+
+        val sync = UserAttendanceRapportSynchronizer(attendanceRequest, attendanceCache, accountSettings)
+        val result = sync.synchronize()
+
+        assertEquals(SyncResult.Success, result)
+        assertTrue(sync.isSynchronized())
+
+        @Suppress("UNCHECKED_CAST")
+        val captor = org.mockito.ArgumentCaptor.forClass(List::class.java) as org.mockito.ArgumentCaptor<List<DBAttendance>>
+        org.mockito.Mockito.verify(accountDataApi, org.mockito.Mockito.times(2)).addAttendances(capture(captor))
+        val capturedLists = captor.allValues
+        assertEquals(2, capturedLists.size)
+        assertEquals(200, capturedLists[0].size)
+        assertEquals(5, capturedLists[1].size)
+        assertEquals(205, capturedLists.flatten().size)
     }
 
 }

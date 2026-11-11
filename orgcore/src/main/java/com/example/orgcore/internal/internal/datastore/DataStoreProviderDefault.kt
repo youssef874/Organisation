@@ -34,7 +34,7 @@ internal abstract class DataStoreProviderDefault<T>(
         }
     }
 
-    override fun observe(key: String, defaultValue: T?): Flow<T?> {
+    override fun observe(key: String, defaultValue: T): Flow<T> {
         LoggerHelper.logger.d(
             TAG,
             "$CLASS_NAME|observe|key: $key"

@@ -12,7 +12,7 @@ internal class FakeDataStoreProvider<T> : DataStoreProvider<T> {
         dataFlow.value += (key to data)
     }
 
-    override fun observe(key: String, defaultValue: T?): Flow<T?> {
+    override fun observe(key: String, defaultValue: T): Flow<T> {
         return dataFlow.map { it[key] ?: defaultValue }
     }
 

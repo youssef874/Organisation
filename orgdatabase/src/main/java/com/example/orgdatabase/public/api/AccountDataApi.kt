@@ -78,6 +78,24 @@ class AccountDataApi(private val context: Context) {
         DataProvider.getAccountProvider(context).updateAttendances(accountId, attendances)
 
     /**
+     * Adds a single attendance record.
+     *
+     * @param attendance The [DBAttendance] record to be added.
+     * @return `true` if added successfully, `false` otherwise.
+     */
+    suspend fun addAttendance(attendance: DBAttendance): Boolean =
+        DataProvider.getAccountProvider(context).addAttendance(attendance)
+
+    /**
+     * Adds a list of attendance records in a batch.
+     *
+     * @param attendances The list of [DBAttendance] records to be added.
+     * @return `true` if all records were added successfully, `false` otherwise.
+     */
+    suspend fun addAttendances(attendances: List<DBAttendance>): Boolean =
+        DataProvider.getAccountProvider(context).addAttendances(attendances)
+
+    /**
      * Update the attendance status for a specific account on a given date.
      *
      * @param accountId The ID of the account.
@@ -138,6 +156,24 @@ class AccountDataApi(private val context: Context) {
         DataProvider.getAccountProvider(context).getAttendancesByDateRange(accountId, startDate, endDate)
 
     /**
+     * Retrieves the count of attendance records for a specific account with a given attendance status within a date range
+     * (e.g., how many days the account was absent or present in the specified range).
+     *
+     * @param accountId The ID of the account.
+     * @param attendanceStatus The attendance status to filter by, restricted to valid values defined in [AttendanceStatusType].
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @return The count of matching attendance records.
+     */
+    suspend fun getAttendanceCountByStatusAndDateRange(
+        accountId: Long,
+        @AttendanceStatusType attendanceStatus: String,
+        startDate: Long,
+        endDate: Long
+    ): Int =
+        DataProvider.getAccountProvider(context).getAttendanceCountByStatusAndDateRange(accountId, attendanceStatus, startDate, endDate)
+
+    /**
      * Observes attendance records for a specific account within a date range.
      *
      * @param accountId The ID of the account.
@@ -160,6 +196,19 @@ class AccountDataApi(private val context: Context) {
      */
     suspend fun getAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): List<DBAttendance> =
         DataProvider.getAccountProvider(context).getAttendancesByDateRangeChunked(accountId, startDate, endDate, page, pageSize)
+
+    /**
+     * Observes a chunk (page) of attendance records for a specific account within a date range.
+     *
+     * @param accountId The ID of the account.
+     * @param startDate The start timestamp/epoch date (inclusive).
+     * @param endDate The end timestamp/epoch date (inclusive).
+     * @param page The page number (starting from 0).
+     * @param pageSize The number of records per page.
+     * @return A [Flow] emitting a list of [DBAttendance] records for the requested chunk whenever changes occur.
+     */
+    fun observeAttendancesByDateRangeChunked(accountId: Long, startDate: Long, endDate: Long, page: Int, pageSize: Int): Flow<List<DBAttendance>> =
+        DataProvider.getAccountProvider(context).observeAttendancesByDateRangeChunked(accountId, startDate, endDate, page, pageSize)
 
     /**
      * Returns a [PagingSource] for paginated access to attendance records for a specific account within a date range.
@@ -216,5 +265,31 @@ class AccountDataApi(private val context: Context) {
      */
     suspend fun getAccountsByChunk(page: Int, pageSize: Int): List<DBAccount> =
         DataProvider.getAccountProvider(context).getAccountsByChunk(page, pageSize)
+
+    /**
+     * Retrieves an account by its server ID.
+     *
+     * @param serverId The server ID of the account.
+     * @return The [DBAccount] if found, or `null` otherwise.
+     */
+    suspend fun getAccountByServerId(serverId: String): DBAccount? =
+        DataProvider.getAccountProvider(context).getAccountByServerId(serverId)
+
+    /**
+     * Retrieves the current user account.
+     *
+     * @return The [DBAccount] marked as user, or `null` if not found.
+     */
+    suspend fun getUserAccount(): DBAccount? =
+        DataProvider.getAccountProvider(context).getUserAccount()
+
+    /**
+     * Retrieves an attendance record by its server ID.
+     *
+     * @param serverId The server ID of the attendance record.
+     * @return The [DBAttendance] if found, or `null` otherwise.
+     */
+    suspend fun getAttendanceByServerId(serverId: String): DBAttendance? =
+        DataProvider.getAccountProvider(context).getAttendanceByServerId(serverId)
 
 }

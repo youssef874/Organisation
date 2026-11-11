@@ -1,5 +1,7 @@
 package com.example.orgcore.commun
 
+import com.example.orgcore.commun.model.SyncResult
+
 /**
  * Orchestrates the synchronization flow, typically coordinating between a [ServerRequest]
  * and an [OfflineCache].
@@ -9,7 +11,7 @@ internal interface Synchronizer {
     /**
      * Triggers the synchronization process.
      *
-     * @return A [SyncResult] representing the outcome of the synchronization operation.
+     * @return A [com.example.orgcore.commun.model.SyncResult] representing the outcome of the synchronization operation.
      */
     suspend fun synchronize(): SyncResult
 

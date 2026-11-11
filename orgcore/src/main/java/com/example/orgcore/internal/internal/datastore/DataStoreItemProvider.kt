@@ -3,7 +3,7 @@ package com.example.orgcore.internal.internal.datastore
 import kotlinx.coroutines.flow.Flow
 
 /**
- * This represent as data provider for a single item from datastore
+ * This represents as data provider for a single item from datastore
  */
 internal interface DataStoreItemProvider<T> {
 
@@ -23,7 +23,7 @@ internal interface DataStoreItemProvider<T> {
      *
      * @return [Flow] of the data
      */
-    fun listenToDataChanges(defaultData: T?): Flow<T?>
+    fun listenToDataChanges(defaultData: T): Flow<T>
 
     /**
      * Call this to get the existing data
@@ -33,14 +33,14 @@ internal interface DataStoreItemProvider<T> {
      *
      * @return the existing data or the default value
      */
-    suspend fun getData( defaultData: T?): T?
+    suspend fun getData( defaultData: T): T
 
     /**
      * Call this to delete the item
      *
      * @param key:The data identifier to be deleted with
      *
-     * @return the deleted item if it exist otherwise it will return null
+     * @return the deleted item if it exists otherwise it will return null
      */
     suspend fun remove(): T?
 

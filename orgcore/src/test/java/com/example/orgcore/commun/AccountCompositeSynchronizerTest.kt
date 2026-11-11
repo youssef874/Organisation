@@ -1,5 +1,6 @@
 package com.example.orgcore.commun
 
+import com.example.orgcore.commun.model.SyncResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

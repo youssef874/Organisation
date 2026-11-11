@@ -126,7 +126,7 @@ fun AttendanceRequestItemPreview() {
             ) {
                 AttendanceRequestItem(
                     record = AttendanceRecord(
-                        id = "1",
+                        id = 1L,
                         dayOfMonth = 10,
                         dayOfWeek = "Monday",
                         status = AttendanceStatus.Present,
@@ -151,7 +151,7 @@ fun AttendanceRequestItemLoadingPreview() {
             ) {
                 AttendanceRequestItem(
                     record = AttendanceRecord(
-                        id = "1",
+                        id = 1L,
                         dayOfMonth = 10,
                         dayOfWeek = "Monday",
                         status = AttendanceStatus.Present,
@@ -175,7 +175,7 @@ fun AttendanceRequestItemDarkPreview() {
             ) {
                 AttendanceRequestItem(
                     record = AttendanceRecord(
-                        id = "1",
+                        id = 1L,
                         dayOfMonth = 10,
                         dayOfWeek = "Monday",
                         status = AttendanceStatus.Pending,

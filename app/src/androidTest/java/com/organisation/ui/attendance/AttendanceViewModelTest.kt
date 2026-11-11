@@ -52,7 +52,7 @@ class AttendanceViewModelTest {
     fun selectingNewDay_updatesSelectedDay() = runTest {
         val newDate = LocalDate.now().plusDays(1)
         val newRecord = AttendanceRecord(
-            id = "new_record",
+            id = 1L,
             dayOfMonth = newDate.dayOfMonth,
             dayOfWeek = newDate.dayOfWeek.name,
             monthOfYear = newDate.monthValue,
@@ -71,7 +71,7 @@ class AttendanceViewModelTest {
     fun isRequestButtonVisible_isTrue_forFutureOrTodayDateWithNormalStatus() = runTest {
         val today = LocalDate.now()
         val todayRecord = AttendanceRecord(
-            id = "today_record",
+            id = 2L,
             dayOfMonth = today.dayOfMonth,
             dayOfWeek = today.dayOfWeek.name,
             monthOfYear = today.monthValue,
@@ -87,7 +87,7 @@ class AttendanceViewModelTest {
 
         val futureDate = LocalDate.now().plusDays(1)
         val futureRecord = AttendanceRecord(
-            id = "future_record",
+            id = 3L,
             dayOfMonth = futureDate.dayOfMonth,
             dayOfWeek = futureDate.dayOfWeek.name,
             monthOfYear = futureDate.monthValue,
@@ -106,7 +106,7 @@ class AttendanceViewModelTest {
     fun isRequestButtonVisible_isFalse_forPastDate() = runTest {
         val pastDate = LocalDate.now().minusDays(1)
         val record = AttendanceRecord(
-            id = "past_record",
+            id = 4L,
             dayOfMonth = pastDate.dayOfMonth,
             dayOfWeek = pastDate.dayOfWeek.name,
             monthOfYear = pastDate.monthValue,
@@ -126,7 +126,7 @@ class AttendanceViewModelTest {
     fun isRequestButtonVisible_isFalse_forHolidayOrWeekend() = runTest {
         val today = LocalDate.now()
         val holidayRecord = AttendanceRecord(
-            id = "holiday_record",
+            id = 5L,
             dayOfMonth = today.dayOfMonth,
             dayOfWeek = today.dayOfWeek.name,
             monthOfYear = today.monthValue,
@@ -141,7 +141,7 @@ class AttendanceViewModelTest {
         assertFalse(isVisible)
 
         val weekendRecord = AttendanceRecord(
-            id = "weekend_record",
+            id = 6L,
             dayOfMonth = today.dayOfMonth,
             dayOfWeek = today.dayOfWeek.name,
             monthOfYear = today.monthValue,
@@ -341,7 +341,7 @@ class AttendanceViewModelTest {
     fun selectingDayOutsideVisibleRange_updatesViewportStartToContainSelectedDay() = runTest(UnconfinedTestDispatcher()) {
         val nextMonthDate = LocalDate.now().plusMonths(2).withDayOfMonth(15)
         val record = AttendanceRecord(
-            id = "test_record",
+            id = 7L,
             dayOfMonth = nextMonthDate.dayOfMonth,
             dayOfWeek = nextMonthDate.dayOfWeek.name,
             monthOfYear = nextMonthDate.monthValue,

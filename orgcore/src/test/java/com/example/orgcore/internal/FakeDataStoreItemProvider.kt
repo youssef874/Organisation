@@ -15,16 +15,16 @@ class FakeDataStoreItemProvider<T>: DataStoreItemProvider<T> {
         notify?.invoke(data)
     }
 
-    override fun listenToDataChanges(defaultData: T?): Flow<T?> {
+    override fun listenToDataChanges(defaultData: T): Flow<T> {
         return callbackFlow {
-            send(value)
-            notify = { send(it) }
+            send(value?:defaultData)
+            notify = { send(it?:defaultData) }
             awaitClose { notify = null }
         }
     }
 
-    override suspend fun getData(defaultData: T?): T? {
-        return value
+    override suspend fun getData(defaultData: T): T {
+        return value?:defaultData
     }
 
     override suspend fun remove(): T? {

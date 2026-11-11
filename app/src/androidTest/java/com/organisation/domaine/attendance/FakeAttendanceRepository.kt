@@ -34,7 +34,7 @@ class FakeAttendanceRepository : AttendanceRepository {
             } else if (currentDate.dayOfWeek == DayOfWeek.SATURDAY || currentDate.dayOfWeek == DayOfWeek.SUNDAY) {
                 result.add(
                     AttendanceRecord(
-                        id = "${currentDate.year}_${currentDate.monthValue}_${currentDate.dayOfMonth}",
+                        id = currentDate.toEpochDay(),
                         dayOfMonth = currentDate.dayOfMonth,
                         dayOfWeek = currentDate.dayOfWeek.name,
                         status = AttendanceStatus.Holiday,

@@ -4,11 +4,11 @@ import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationError
 import com.example.orgcore.api.account.model.AuthenticationErrorType
 import com.example.orgcore.commun.LoggerHelper
-import com.example.orgcore.commun.NetworkResult
 import com.example.orgcore.commun.ServerRequest
+import com.example.orgcore.commun.model.NetworkResult
 import com.example.orgcore.commun.model.Result
-import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
+import com.example.orgcore.internal.account.model.Account
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,17 +24,15 @@ internal class DefaultAuthenticationService(
     }
 
     override suspend fun isAuthenticated(): Boolean {
-        return authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(null) != null
+        return authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("").isNotBlank()
     }
 
     override suspend fun getAuthenticatedAccountType(): @AccountUserType Int? {
-        return authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(null)
-            ?.let { type ->
-                when (type) {
-                    AccountUserType.WORKER, AccountUserType.BOSS, AccountUserType.MANAGER -> type
-                    else -> null
-                }
-            }
+        val type = authenticationProvider.authenticatedUserAccountTypeDataStoreItemProvider.getData(-1)
+        return when (type) {
+            AccountUserType.WORKER, AccountUserType.BOSS, AccountUserType.MANAGER -> type
+            else -> null
+        }
     }
 
     override suspend fun requestAuthentication(

@@ -19,14 +19,13 @@ internal class UserAccountSynchronizer(
 ) : BaseSynchronizer<Account>(userAccountServerRequest) {
 
     override val className: String = "UserAccountSynchronizer"
-    override val tag: String = "ACCOUNT_SYNC"
+    override val tag: String = "ACCOUNT"
 
     override suspend fun updateIsSynchronized(isSynchronized: Boolean) {
         accountSettings.isUserAccountSynchronized.updateData(isSynchronized)
     }
 
     override suspend fun performCaching(data: Account): Boolean {
-        println("test $className $data")
         return userAccountCache.cache(data)
     }
 

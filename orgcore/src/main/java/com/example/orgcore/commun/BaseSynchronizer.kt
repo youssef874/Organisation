@@ -1,5 +1,7 @@
 package com.example.orgcore.commun
 
+import com.example.orgcore.commun.model.NetworkResult
+import com.example.orgcore.commun.model.SyncResult
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -9,7 +11,7 @@ import kotlinx.coroutines.CancellationException
  * 1. Fetches data from the [ServerRequest].
  * 2. Handles network success and errors.
  * 3. Delegates caching logic to [performCaching].
- * 4. Returns a [SyncResult].
+ * 4. Returns a [com.example.orgcore.commun.model.SyncResult].
  *
  * @param T The type of data being synchronized.
  * @property serverRequest The request used to fetch data from the server.
@@ -35,7 +37,6 @@ internal abstract class BaseSynchronizer<T>(
             when (val networkResult = serverRequest.request()) {
                 is NetworkResult.Success -> {
                     val cached = performCaching(networkResult.data)
-                    println("test $className $cached")
                     if (cached) {
                         LoggerHelper.logger.i(tag, "$className|synchronize|sync completed")
                         updateIsSynchronized(true)

@@ -3,7 +3,7 @@ package com.organisation.domaine
 import com.organisation.domaine.account.repo.AccountRepository
 import com.organisation.domaine.account.repo.DefaultAccountRepo
 import com.organisation.domaine.attendance.AttendanceRepository
-import com.organisation.domaine.attendance.FakeAttendanceRepository
+import com.organisation.domaine.attendance.DefaultAttendanceRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,5 +17,5 @@ object RepoProvider{
     fun getAccountRepo(): AccountRepository = DefaultAccountRepo
 
     @Provides
-    fun getAttendanceRepo(): AttendanceRepository = FakeAttendanceRepository()
+    fun getAttendanceRepo(): AttendanceRepository = DefaultAttendanceRepository()
 }

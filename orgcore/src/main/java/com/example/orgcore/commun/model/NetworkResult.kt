@@ -1,4 +1,4 @@
-package com.example.orgcore.commun
+package com.example.orgcore.commun.model
 
 /**
  * A generic class that holds a value with its loading status.

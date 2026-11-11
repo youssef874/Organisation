@@ -1,11 +1,11 @@
 package com.youssefmkh.logger.internal
 
+import com.example.orlogger.internal.DefaultFormatter
 import com.youssefmkh.logger.Priority
 import com.youssefmkh.logger.Strategy
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.text.Format
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

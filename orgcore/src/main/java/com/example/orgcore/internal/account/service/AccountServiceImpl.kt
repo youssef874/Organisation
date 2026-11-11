@@ -5,16 +5,19 @@ import com.example.orgcore.api.account.event.AccountFetchDataResult
 import com.example.orgcore.commun.AccountCompositeSynchronizer
 import com.example.orgcore.commun.LoggerHelper
 import com.example.orgcore.commun.OrgEventNotifier
-import com.example.orgcore.commun.SyncResult
+import com.example.orgcore.commun.SequentialSynchronizer
 import com.example.orgcore.commun.Synchronizer
+import com.example.orgcore.commun.model.SyncResult
 import com.example.orgcore.internal.ServicesProvider
-import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.cache.RelatedUserAccountCache
 import com.example.orgcore.internal.account.cache.UserAccountCache
 import com.example.orgcore.internal.account.request.FakeAccountOwnerRequest
 import com.example.orgcore.internal.account.request.FakeRequestRelatedUserAccount
 import com.example.orgcore.internal.account.sync.RelatedAccountsSynchronizer
 import com.example.orgcore.internal.account.sync.UserAccountSynchronizer
+import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
+import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
+import com.example.orgcore.internal.attendance.sync.UserAttendanceRapportSynchronizer
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 
@@ -22,7 +25,6 @@ internal class AccountServiceImpl internal constructor(
     private val accountSynchronizer: Synchronizer,
     private val networkMonitor: NetworkMonitor,
     private val accountEventNotifier: OrgEventNotifier,
-    private val authenticationProvider: AuthenticationProvider
 ): AccountService {
 
     companion object{
@@ -36,7 +38,6 @@ internal class AccountServiceImpl internal constructor(
                 accountSynchronizer = createSynchronizer(context),
                 networkMonitor = ServicesProvider.getNetworkMonitor(),
                 accountEventNotifier = ServicesProvider.getAccountEventsDispatcher(),
-                authenticationProvider = ServicesProvider.getAuthenticationProvider(context)
             )
         }
 
@@ -57,7 +58,14 @@ internal class AccountServiceImpl internal constructor(
                 accountSettings = accountSettings
             )
 
-            return AccountCompositeSynchronizer(listOf(userSync, relatedSync))
+            val userAttendanceRapport = UserAttendanceRapportSynchronizer(
+                userAttendanceRapportRequest = FakeUserAttendanceRapportRequest(authProvider),
+                userAttendanceRapportCache = UserAttendanceRapportCache(accountDataApi),
+                accountSettings = accountSettings
+            )
+
+            val accountComposite = AccountCompositeSynchronizer(listOf(userSync, relatedSync))
+            return SequentialSynchronizer(listOf(accountComposite, userAttendanceRapport))
         }
     }
 
@@ -67,7 +75,6 @@ internal class AccountServiceImpl internal constructor(
                 TAG,
                 "$CLASS_NAME|requestData|Already synchronized"
             )
-            println("test requestData: Already synchronized")
             accountEventNotifier.notify(
                 AccountFetchDataResult(
                     result = SyncResult.Success
@@ -87,20 +94,7 @@ internal class AccountServiceImpl internal constructor(
             )
             return
         }
-        if (authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData(null) == null){
-            LoggerHelper.logger.e(
-                TAG,
-                "$CLASS_NAME|requestData| User not authenticated could not sync account data"
-            )
-            accountEventNotifier.notify(
-                AccountFetchDataResult(
-                    result = SyncResult.Error.Unauthorized()
-                )
-            )
-            return
-        }
         val result = accountSynchronizer.synchronize()
-        println("test requestData: $result")
         accountEventNotifier.notify(
             AccountFetchDataResult(
                 result = result
