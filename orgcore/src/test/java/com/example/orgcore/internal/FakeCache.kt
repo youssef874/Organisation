@@ -1,6 +1,6 @@
 package com.example.orgcore.internal
 
-import com.example.orgcore.commun.OfflineCache
+import com.example.orgcore.internal.commun.cache.OfflineCache
 
 class FakeCache<T>: OfflineCache<T> {
 

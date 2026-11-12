@@ -1,8 +1,8 @@
 package com.example.orgcore.api.account.model
 
 import androidx.annotation.IntDef
-import com.youssefmkh.core.internal.commun.model.ServerRequestError
-import com.youssefmkh.core.internal.commun.model.ServerRequestErrorType
+import com.example.orgcore.internal.commun.model.ServerRequestError
+import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 
 
 @IntDef(

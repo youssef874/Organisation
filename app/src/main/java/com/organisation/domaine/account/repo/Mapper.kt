@@ -3,9 +3,9 @@ package com.organisation.domaine.account.repo
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationError
 import com.example.orgcore.api.account.model.AuthenticationErrorType
+import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.api.network.data.NetworkConnection
 import com.example.orgcore.api.network.data.NetworkStatus
-import com.example.orgcore.commun.model.SyncResult
 import com.organisation.Result
 import com.organisation.domaine.account.model.AccountType
 import com.organisation.domaine.account.model.AuthError

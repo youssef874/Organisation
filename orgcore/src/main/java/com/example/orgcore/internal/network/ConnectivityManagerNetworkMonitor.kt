@@ -5,11 +5,13 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
-import com.example.orgcore.commun.LoggerHelper
 import com.example.orgcore.api.network.data.NetworkConnection
 import com.example.orgcore.api.network.data.NetworkStatus
+import com.example.orgcore.internal.commun.LoggerHelper
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
  * Implementation of [NetworkMonitor] using [ConnectivityManager]

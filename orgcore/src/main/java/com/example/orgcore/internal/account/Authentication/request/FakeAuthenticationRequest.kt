@@ -2,10 +2,10 @@ package com.example.orgcore.internal.account.Authentication.request
 
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationErrorType
-import com.example.orgcore.commun.FakeData
-import com.example.orgcore.commun.ServerRequest
-import com.example.orgcore.commun.model.NetworkResult
+import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.account.model.Account
+import com.example.orgcore.internal.commun.FakeData
+import com.example.orgcore.internal.commun.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay

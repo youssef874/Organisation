@@ -3,12 +3,12 @@ package com.example.orgcore.internal.account.Authentication.service
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationError
 import com.example.orgcore.api.account.model.AuthenticationErrorType
-import com.example.orgcore.commun.LoggerHelper
-import com.example.orgcore.commun.ServerRequest
-import com.example.orgcore.commun.model.NetworkResult
-import com.example.orgcore.commun.model.Result
+import com.example.orgcore.api.model.NetworkResult
+import com.example.orgcore.api.model.Result
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
+import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.ServerRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

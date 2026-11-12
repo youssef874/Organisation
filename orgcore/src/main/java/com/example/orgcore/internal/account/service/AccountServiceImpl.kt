@@ -2,12 +2,7 @@ package com.example.orgcore.internal.account.service
 
 import android.content.Context
 import com.example.orgcore.api.account.event.AccountFetchDataResult
-import com.example.orgcore.commun.AccountCompositeSynchronizer
-import com.example.orgcore.commun.LoggerHelper
-import com.example.orgcore.commun.OrgEventNotifier
-import com.example.orgcore.commun.SequentialSynchronizer
-import com.example.orgcore.commun.Synchronizer
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.cache.RelatedUserAccountCache
 import com.example.orgcore.internal.account.cache.UserAccountCache
@@ -18,6 +13,11 @@ import com.example.orgcore.internal.account.sync.UserAccountSynchronizer
 import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
 import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
 import com.example.orgcore.internal.attendance.sync.UserAttendanceRapportSynchronizer
+import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.commun.sync.AccountCompositeSynchronizer
+import com.example.orgcore.internal.commun.sync.SequentialSynchronizer
+import com.example.orgcore.internal.commun.sync.Synchronizer
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 

@@ -9,9 +9,10 @@ import com.example.orgcore.api.account.event.AccountEventTypes
 import com.example.orgcore.api.account.event.AccountFetchDataResult
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.attendance.AttendanceApi
-import com.example.orgcore.commun.FakeData
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.Result
+import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.internal.ServicesProvider
+import com.example.orgcore.internal.commun.FakeData
 import com.example.orgdatabase.public.api.AccountDataApi
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
@@ -57,7 +58,7 @@ class AccountSyncE2ETest {
     fun `full synchronization flow success`() = runTest {
         // 1. Authenticate user
         val authResult = AuthenticationApi.requestAuthentication("worker", "psw")
-        assertTrue("Authentication should succeed", authResult is com.example.orgcore.commun.model.Result.Success)
+        assertTrue("Authentication should succeed", authResult is Result.Success)
 
         // 2. Trigger synchronization
         AccountApi.fetchData()

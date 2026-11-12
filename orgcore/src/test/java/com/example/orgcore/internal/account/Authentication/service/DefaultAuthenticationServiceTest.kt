@@ -3,8 +3,8 @@ package com.example.orgcore.internal.account.Authentication.service
 import android.content.Context
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationErrorType
+import com.example.orgcore.api.model.Result
 import com.example.orgcore.api.network.data.NetworkConnection
-import com.example.orgcore.commun.model.Result
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
 import com.example.orgcore.internal.account.Authentication.request.FakeAuthenticationRequest
 import com.example.orgcore.internal.internal.datastore.DataStoreItemProvider

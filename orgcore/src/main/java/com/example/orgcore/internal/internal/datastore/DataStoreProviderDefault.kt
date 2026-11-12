@@ -3,7 +3,7 @@ package com.example.orgcore.internal.internal.datastore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.example.orgcore.commun.LoggerHelper
+import com.example.orgcore.internal.commun.LoggerHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

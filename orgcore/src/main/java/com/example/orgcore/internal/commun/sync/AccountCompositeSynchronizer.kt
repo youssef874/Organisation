@@ -1,6 +1,6 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.sync
 
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.SyncResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -9,7 +9,7 @@ import kotlinx.coroutines.coroutineScope
  * [Synchronizer] implementation that aggregates multiple synchronizers.
  *
  * It executes all provided [synchronizers] in parallel using Coroutines and
- * returns a combined [com.example.orgcore.commun.model.SyncResult].
+ * returns a combined [SyncResult].
  *
  * @property synchronizers The list of synchronizers to be executed.
  */

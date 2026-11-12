@@ -1,10 +1,10 @@
 package com.example.orgcore.internal.attendance.sync
 
-import com.example.orgcore.commun.BaseSynchronizer
 import com.example.orgcore.internal.account.AccountSettings
 import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
 import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
+import com.example.orgcore.internal.commun.sync.BaseSynchronizer
 
 internal class UserAttendanceRapportSynchronizer(
     userAttendanceRapportRequest: FakeUserAttendanceRapportRequest,

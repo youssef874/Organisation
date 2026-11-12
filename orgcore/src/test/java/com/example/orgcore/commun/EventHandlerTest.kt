@@ -1,6 +1,7 @@
 package com.example.orgcore.commun
 
-import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.api.model.OrgEvent
+import com.example.orgcore.internal.commun.event.EventHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList

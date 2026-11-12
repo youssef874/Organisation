@@ -1,11 +1,11 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.event
 
-import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.api.model.OrgEvent
 
 /**
  * Interface for components that dispatch [OrgEvent]s to listeners.
  */
-interface OrgEventNotifier {
+internal interface OrgEventNotifier {
 
     /**
      * Notifies all registered listeners about the provided [event].

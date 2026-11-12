@@ -1,10 +1,10 @@
 package com.example.orgcore.internal.account.request
 
-import com.example.orgcore.commun.FakeData
-import com.example.orgcore.commun.ServerRequest
-import com.example.orgcore.commun.model.NetworkResult
+import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
+import com.example.orgcore.internal.commun.FakeData
+import com.example.orgcore.internal.commun.ServerRequest
 
 /**
  * Fake implementation of [ServerRequest] to fetch the current account owner's profile.

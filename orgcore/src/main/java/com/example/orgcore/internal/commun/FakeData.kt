@@ -1,4 +1,4 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun
 
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.attendance.model.AttendanceStatus

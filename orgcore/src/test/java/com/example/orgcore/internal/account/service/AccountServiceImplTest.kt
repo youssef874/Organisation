@@ -1,11 +1,11 @@
 package com.example.orgcore.internal.account.service
 
 import com.example.orgcore.api.account.event.AccountFetchDataResult
-import com.example.orgcore.commun.OrgEventNotifier
-import com.example.orgcore.commun.Synchronizer
-import com.example.orgcore.commun.model.OrgEvent
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.OrgEvent
+import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
+import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.commun.sync.Synchronizer
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest

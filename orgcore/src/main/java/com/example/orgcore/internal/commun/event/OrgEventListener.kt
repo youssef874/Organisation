@@ -1,13 +1,13 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.event
 
-import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.api.model.OrgEvent
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Interface for components that wish to listen to or observe [OrgEvent]s.
  * It supports both callback-based and Flow-based observation.
  */
-interface OrgEventListener {
+internal interface OrgEventListener {
 
     /**
      * Registers a [listener] for a specific [orgEvent] type.

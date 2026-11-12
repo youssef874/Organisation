@@ -1,9 +1,9 @@
 package com.example.orgcore.internal.attendance.cache
 
-import com.example.orgcore.commun.FakeData
 import com.example.orgcore.commun.anyObject
 import com.example.orgcore.commun.capture
 import com.example.orgcore.internal.account.Authentication.mapper.toDBAccount
+import com.example.orgcore.internal.commun.FakeData
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.test.runTest

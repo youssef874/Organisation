@@ -6,7 +6,7 @@ import android.net.NetworkCapabilities
 import com.example.orgcore.SDKComponent
 import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationErrorType
-import com.example.orgcore.commun.model.Result
+import com.example.orgcore.api.model.Result
 import com.example.orgcore.internal.ServicesProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

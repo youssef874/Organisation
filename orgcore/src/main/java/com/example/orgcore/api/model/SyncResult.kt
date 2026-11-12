@@ -1,4 +1,4 @@
-package com.example.orgcore.commun.model
+package com.example.orgcore.api.model
 
 /**
  * Represents the result of a synchronization operation.

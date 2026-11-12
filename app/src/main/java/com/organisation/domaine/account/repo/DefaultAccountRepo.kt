@@ -7,9 +7,9 @@ import com.example.orgcore.api.account.event.AccountEventTypes
 import com.example.orgcore.api.account.event.AccountFetchDataResult
 import com.example.orgcore.api.account.model.AuthenticatedAccount
 import com.example.orgcore.api.account.model.AuthenticationError
+import com.example.orgcore.api.model.Result.Error
+import com.example.orgcore.api.model.Result.Success
 import com.example.orgcore.api.network.NetworkApi
-import com.example.orgcore.commun.model.Result.Error
-import com.example.orgcore.commun.model.Result.Success
 import com.organisation.Result
 import com.organisation.domaine.account.model.AccountType
 import com.organisation.domaine.account.model.AuthError

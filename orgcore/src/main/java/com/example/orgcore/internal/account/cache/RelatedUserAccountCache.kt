@@ -1,9 +1,9 @@
 package com.example.orgcore.internal.account.cache
 
-import com.example.orgcore.commun.LoggerHelper
-import com.example.orgcore.commun.OfflineCache
 import com.example.orgcore.internal.account.Authentication.mapper.toDBAccount
 import com.example.orgcore.internal.account.model.Account
+import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgdatabase.public.api.AccountDataApi
 
 /**

@@ -1,6 +1,7 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.sync
 
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.SyncResult
+import com.example.orgcore.internal.commun.LoggerHelper
 
 /**
  * [Synchronizer] implementation that executes a list of synchronizers sequentially in order.

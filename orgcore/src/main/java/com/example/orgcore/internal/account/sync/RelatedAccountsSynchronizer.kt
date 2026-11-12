@@ -1,10 +1,10 @@
 package com.example.orgcore.internal.account.sync
 
-import com.example.orgcore.commun.BaseSynchronizer
-import com.example.orgcore.commun.OfflineCache
-import com.example.orgcore.commun.ServerRequest
 import com.example.orgcore.internal.account.AccountSettings
 import com.example.orgcore.internal.account.model.Account
+import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.cache.OfflineCache
+import com.example.orgcore.internal.commun.sync.BaseSynchronizer
 
 /**
  * Concrete [BaseSynchronizer] for synchronizing a list of related accounts.

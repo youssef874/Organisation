@@ -1,9 +1,9 @@
 package com.example.orgcore.internal.account.Authentication.service
 
-import com.example.orgcore.api.account.model.AuthenticationError
-import com.example.orgcore.commun.model.Result
-import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.api.account.model.AccountUserType
+import com.example.orgcore.api.account.model.AuthenticationError
+import com.example.orgcore.api.model.Result
+import com.example.orgcore.internal.account.model.Account
 
 /**
  * This abstraction of authentication services
@@ -31,8 +31,8 @@ internal interface AuthenticationService {
      * @param userName: the requester user name
      * @param psw: The user password
      *
-     * @return [com.example.orgcore.commun.model.Result.Success] of type [Account] if the user is authorizes to the rest of the sdk services
-     * or [com.example.orgcore.commun.model.Result.Error] of type [com.example.orgcore.api.account.model.AuthenticationError] if authentication failed for some reason
+     * @return [Result.Success] of type [Account] if the user is authorizes to the rest of the sdk services
+     * or [Result.Error] of type [com.example.orgcore.api.account.model.AuthenticationError] if authentication failed for some reason
      */
     suspend fun requestAuthentication(userName: String,psw: String): Result<Account, AuthenticationError>
 }

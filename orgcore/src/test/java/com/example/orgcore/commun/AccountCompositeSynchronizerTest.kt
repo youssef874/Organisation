@@ -1,6 +1,8 @@
 package com.example.orgcore.commun
 
-import com.example.orgcore.commun.model.SyncResult
+import com.example.orgcore.api.model.SyncResult
+import com.example.orgcore.internal.commun.sync.AccountCompositeSynchronizer
+import com.example.orgcore.internal.commun.sync.Synchronizer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -29,20 +31,24 @@ class AccountCompositeSynchronizerTest {
 
     @Test
     fun `returns Success when all succeed`() = runTest {
-        val composite = AccountCompositeSynchronizer(listOf(
-            FakeSynchronizer(result = SyncResult.Success),
-            FakeSynchronizer(result = SyncResult.Success)
-        ))
+        val composite = AccountCompositeSynchronizer(
+            listOf(
+                FakeSynchronizer(result = SyncResult.Success),
+                FakeSynchronizer(result = SyncResult.Success)
+            )
+        )
 
         assertEquals(SyncResult.Success, composite.synchronize())
     }
 
     @Test
     fun `returns PartialSuccess when some fail`() = runTest {
-        val composite = AccountCompositeSynchronizer(listOf(
-            FakeSynchronizer(result = SyncResult.Success),
-            FakeSynchronizer(result = SyncResult.Error.NetworkError())
-        ))
+        val composite = AccountCompositeSynchronizer(
+            listOf(
+                FakeSynchronizer(result = SyncResult.Success),
+                FakeSynchronizer(result = SyncResult.Error.NetworkError())
+            )
+        )
 
         val result = composite.synchronize()
         assertTrue(result is SyncResult.PartialSuccess)
@@ -51,10 +57,12 @@ class AccountCompositeSynchronizerTest {
     @Test
     fun `returns Error when all fail`() = runTest {
         val error = SyncResult.Error.DatabaseError()
-        val composite = AccountCompositeSynchronizer(listOf(
-            FakeSynchronizer(result = error),
-            FakeSynchronizer(result = SyncResult.Error.NetworkError())
-        ))
+        val composite = AccountCompositeSynchronizer(
+            listOf(
+                FakeSynchronizer(result = error),
+                FakeSynchronizer(result = SyncResult.Error.NetworkError())
+            )
+        )
 
         val result = composite.synchronize()
         assertTrue(result is SyncResult.Error)
@@ -62,20 +70,24 @@ class AccountCompositeSynchronizerTest {
 
     @Test
     fun `isSynchronized returns true when all children are synchronized`() = runTest {
-        val composite = AccountCompositeSynchronizer(listOf(
-            FakeSynchronizer(isSynchronized = true, result = SyncResult.Success),
-            FakeSynchronizer(isSynchronized = true, result = SyncResult.Success)
-        ))
+        val composite = AccountCompositeSynchronizer(
+            listOf(
+                FakeSynchronizer(isSynchronized = true, result = SyncResult.Success),
+                FakeSynchronizer(isSynchronized = true, result = SyncResult.Success)
+            )
+        )
 
         assertTrue(composite.isSynchronized())
     }
 
     @Test
     fun `isSynchronized returns false when any child is not synchronized`() = runTest {
-        val composite = AccountCompositeSynchronizer(listOf(
-            FakeSynchronizer(isSynchronized = true, result = SyncResult.Success),
-            FakeSynchronizer(isSynchronized = false, result = SyncResult.Success)
-        ))
+        val composite = AccountCompositeSynchronizer(
+            listOf(
+                FakeSynchronizer(isSynchronized = true, result = SyncResult.Success),
+                FakeSynchronizer(isSynchronized = false, result = SyncResult.Success)
+            )
+        )
 
         assertTrue(!composite.isSynchronized())
     }

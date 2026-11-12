@@ -1,6 +1,6 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.event
 
-import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.api.model.OrgEvent
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

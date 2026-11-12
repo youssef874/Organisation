@@ -61,14 +61,15 @@ internal data class AttendanceEntity(
         // Status values
         const val STATUS_ABSENT = "absent"
         const val STATUS_PRESENT = "present"
-        const val STATUS_IN_PROGRESS = "in_progress"
+        const val STATUS_IN_PROGRESS = "in progress"
+        const val STATUS_PENDING = "pending"
         const val STATUS_HOLIDAY = "holiday"
         const val STATUS_PERSONAL_HOLIDAY = "personal holiday"
         const val STATUS_WEEKEND = "weekend"
         const val STATUS_PAID_LEAVE = "paid leave"
         const val STATUS_UNPAID_LEAVE = "unpaid leave"
         const val STATUS_PAID_PARTIAL_LEAVE = "paid partial leave"
-        const val STATUS_UNPAID_PARTIAL_LEAVE = "unpaid_partial_leave"
+        const val STATUS_UNPAID_PARTIAL_LEAVE = "unpaid partial leave"
         const val STATUS_NONE = "none"
     }
 }

@@ -1,4 +1,4 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun
 
 import com.youssefmkh.logger.Logger
 

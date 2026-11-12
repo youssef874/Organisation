@@ -2,7 +2,6 @@ package com.example.orgcore.api.account
 
 import com.example.orgcore.SDKComponent
 import com.example.orgcore.api.account.event.AccountFetchDataResult
-import com.example.orgcore.commun.model.OrgEvent
 import com.example.orgcore.internal.ServicesProvider
 
 /**

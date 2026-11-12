@@ -5,10 +5,10 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
-import com.example.orgcore.commun.LoggerHelper
 import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
+import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgdatabase.public.api.AccountDataApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll

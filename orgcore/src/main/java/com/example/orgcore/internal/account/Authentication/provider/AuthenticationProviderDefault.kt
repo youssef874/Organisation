@@ -1,6 +1,6 @@
 package com.example.orgcore.internal.account.Authentication.provider
 
-import com.example.orgcore.commun.LoggerHelper
+import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.internal.datastore.DataStoreItemProvider
 import com.example.orgcore.internal.internal.datastore.DataStoreProvider
 import kotlinx.coroutines.flow.Flow

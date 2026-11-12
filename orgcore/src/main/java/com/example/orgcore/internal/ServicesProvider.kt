@@ -2,8 +2,6 @@ package com.example.orgcore.internal
 
 import android.content.Context
 import com.example.orgcore.SDKComponent
-import com.example.orgcore.commun.OrgEventListener
-import com.example.orgcore.commun.OrgEventNotifier
 import com.example.orgcore.internal.account.AccountEventHandler
 import com.example.orgcore.internal.account.AccountManager
 import com.example.orgcore.internal.account.AccountProvider
@@ -18,6 +16,8 @@ import com.example.orgcore.internal.account.service.AccountService
 import com.example.orgcore.internal.account.service.AccountServiceImpl
 import com.example.orgcore.internal.attendance.AttendanceProvider
 import com.example.orgcore.internal.attendance.AttendanceProviderDefault
+import com.example.orgcore.internal.commun.event.OrgEventListener
+import com.example.orgcore.internal.commun.event.OrgEventNotifier
 import com.example.orgcore.internal.network.ConnectivityManagerNetworkMonitor
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.youssefmkh.core.internal.commun.datastore.DataStoreFactory

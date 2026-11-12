@@ -1,4 +1,4 @@
-package com.example.orgcore.commun
+package com.example.orgcore.internal.commun.cache
 
 /**
  * Abstraction for persisting data in a local/offline storage.

@@ -1,8 +1,8 @@
 package com.example.orgcore.internal.account
 
-import com.example.orgcore.commun.OrgEventListener
-import com.example.orgcore.commun.model.OrgEvent
+import com.example.orgcore.api.model.OrgEvent
 import com.example.orgcore.internal.account.service.AccountService
+import com.example.orgcore.internal.commun.event.OrgEventListener
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

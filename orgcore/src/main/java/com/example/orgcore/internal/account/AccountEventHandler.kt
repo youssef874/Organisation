@@ -1,6 +1,6 @@
 package com.example.orgcore.internal.account
 
-import com.example.orgcore.commun.EventHandler
+import com.example.orgcore.internal.commun.event.EventHandler
 
 /**
  * Concrete [EventHandler] for account-related events.

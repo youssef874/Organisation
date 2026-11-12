@@ -1,4 +1,4 @@
-package com.youssefmkh.core.internal.commun.model
+package com.example.orgcore.internal.commun.model
 
 import androidx.annotation.IntDef
 
@@ -11,7 +11,7 @@ import androidx.annotation.IntDef
 )
 
 @Target(AnnotationTarget.TYPE)
-annotation class ServerRequestErrorType{
+ internal annotation class ServerRequestErrorType{
 
     companion object{
 
@@ -22,4 +22,4 @@ annotation class ServerRequestErrorType{
     }
 }
 
-open class ServerRequestError(val Code: @ServerRequestErrorType Int, val msg: String)
+open class ServerRequestError(val code: @ServerRequestErrorType Int, val msg: String)

@@ -1,12 +1,9 @@
 package com.example.orgcore.internal.account
 
 import com.example.orgcore.api.account.model.AccountUserType
-import com.example.orgcore.commun.FakeData
-import com.example.orgcore.commun.OfflineCache
-import com.example.orgcore.commun.ServerRequest
+import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.commun.anyObject
 import com.example.orgcore.commun.capture
-import com.example.orgcore.commun.model.SyncResult
 import com.example.orgcore.internal.FakeCache
 import com.example.orgcore.internal.account.Authentication.mapper.toDBAccount
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
@@ -19,6 +16,9 @@ import com.example.orgcore.internal.account.sync.UserAccountSynchronizer
 import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
 import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
 import com.example.orgcore.internal.attendance.sync.UserAttendanceRapportSynchronizer
+import com.example.orgcore.internal.commun.FakeData
+import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.test.runTest
