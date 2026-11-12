@@ -1,9 +1,9 @@
 package com.youssefmkh.core.internal.commun.datastore
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import android.content.Context
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.example.orgcore.internal.internal.datastore.BooleanDataStoreProvider
 import com.example.orgcore.internal.internal.datastore.DataStoreProvider
