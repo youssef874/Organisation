@@ -3,7 +3,10 @@ package com.example.orgcore.internal.attendance
 import android.content.Context
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
+import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import com.example.orgdatabase.public.model.DBAccount
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -27,6 +30,15 @@ class AttendanceProviderDefaultTest {
     @Mock
     private lateinit var accountDataApi: AccountDataApi
 
+    @Mock
+    private lateinit var networkMonitor: NetworkMonitor
+
+    @Mock
+    private lateinit var attendanceEventNotifier: OrgEventNotifier
+
+    @Mock
+    private lateinit var offlineRequestDataApi: OfflineRequestDataApi
+
     private lateinit var fakeAuthProvider: FakeAuthenticationProvider
     private lateinit var attendanceProvider: AttendanceProviderDefault
 
@@ -35,7 +47,14 @@ class AttendanceProviderDefaultTest {
         MockitoAnnotations.openMocks(this)
         context = RuntimeEnvironment.getApplication().applicationContext
         fakeAuthProvider = FakeAuthenticationProvider()
-        attendanceProvider = AttendanceProviderDefault(context, accountDataApi, fakeAuthProvider)
+        attendanceProvider = AttendanceProviderDefault(
+            context = context,
+            accountDataApi = accountDataApi,
+            authenticationProvider = fakeAuthProvider,
+            networkMonitor = networkMonitor,
+            attendanceEventNotifier = attendanceEventNotifier,
+            offlineRequestDataApi = offlineRequestDataApi
+        )
     }
 
     @Test

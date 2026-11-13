@@ -1,8 +1,10 @@
 package com.example.orgcore.internal.attendance.mapper
 
+import com.example.orgcore.api.attendance.event.AttendanceRequestFailReason
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
+import com.example.orgcore.internal.commun.model.ServerErrorCode
 import com.example.orgdatabase.public.model.AttendanceStatusType
 import com.example.orgdatabase.public.model.DBAttendance
 
@@ -70,5 +72,19 @@ fun @AttendanceStatusType String.toApiStatus(): @AttendanceStatus String {
         AttendanceStatusType.PAID_PARTIAL_LEAVE -> AttendanceStatus.PAID_PARTIAL_LEAVE
         AttendanceStatusType.UNPAID_PARTIAL_LEAVE -> AttendanceStatus.UNPAID_PARTIAL_LEAVE
         else -> AttendanceStatus.NONE
+    }
+}
+
+internal fun @ServerErrorCode Int.toAttendanceFailReason(): @AttendanceRequestFailReason String {
+    return when (this) {
+        ServerErrorCode.UNAUTHORIZED,
+        ServerErrorCode.FORBIDDEN -> AttendanceRequestFailReason.UNAUTHORIZED
+
+        ServerErrorCode.REQUEST_TIMEOUT,
+        ServerErrorCode.GATEWAY_TIMEOUT -> AttendanceRequestFailReason.TIMEOUT
+
+        ServerErrorCode.UNPROCESSABLE_ENTITY -> AttendanceRequestFailReason.SUPERVISOR_REJECT
+
+        else -> AttendanceRequestFailReason.SERVER_ISSUE
     }
 }

@@ -293,4 +293,14 @@ internal interface AttendanceProvider {
         endRange: Long,
         attendanceStatus: @AttendanceStatus String
     ): Flow<Int>
+
+    /**
+     * Cancels an attendance request for the authenticated user on a given date.
+     *
+     * @param date The timestamp/epoch date of the attendance request to cancel.
+     * @return `true` if the cancellation request was successfully dispatched/handled, `false` otherwise.
+     */
+    suspend fun cancelUserAttendanceRequest(
+        date: Long
+    ): Boolean
 }

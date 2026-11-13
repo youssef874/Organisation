@@ -14,6 +14,7 @@ import com.example.orgcore.internal.account.Authentication.service.Authenticatio
 import com.example.orgcore.internal.account.Authentication.service.DefaultAuthenticationService
 import com.example.orgcore.internal.account.service.AccountService
 import com.example.orgcore.internal.account.service.AccountServiceImpl
+import com.example.orgcore.internal.attendance.AttendanceEventHandler
 import com.example.orgcore.internal.attendance.AttendanceProvider
 import com.example.orgcore.internal.attendance.AttendanceProviderDefault
 import com.example.orgcore.internal.commun.event.OrgEventListener
@@ -61,5 +62,11 @@ internal object ServicesProvider {
             context = context,
             authenticationProvider = getAuthenticationProvider(context)
         )
+
+    fun getAttendanceEventsDispatcher(): OrgEventNotifier = AttendanceEventHandler
+
+    fun getAttendanceEventsListener(): OrgEventListener = AttendanceEventHandler
+
+
 
 }

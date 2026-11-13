@@ -7,9 +7,13 @@ import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
 import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
+import com.example.orgcore.internal.attendance.handler.AttendanceUpdateRequestHandler
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
 import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -19,7 +23,10 @@ import kotlinx.coroutines.flow.mapNotNull
 internal class AttendanceProviderDefault(
     private val context: Context,
     private val accountDataApi: AccountDataApi = AccountDataApi(context),
-    private val authenticationProvider: AuthenticationProvider = ServicesProvider.getAuthenticationProvider(context)
+    private val authenticationProvider: AuthenticationProvider = ServicesProvider.getAuthenticationProvider(context),
+    private val networkMonitor: NetworkMonitor = ServicesProvider.getNetworkMonitor(),
+    private val attendanceEventNotifier: OrgEventNotifier = ServicesProvider.getAttendanceEventsDispatcher(),
+    private val offlineRequestDataApi: OfflineRequestDataApi = OfflineRequestDataApi((context))
 ) : AttendanceProvider {
 
     companion object {
@@ -269,6 +276,30 @@ internal class AttendanceProviderDefault(
         return flowWithUserAccountId(0) { accountId ->
             observeAttendanceStatusCountForRange(accountId, startRange, endRange, attendanceStatus)
         }
+    }
+
+
+    override suspend fun cancelUserAttendanceRequest(
+        date: Long
+    ): Boolean {
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|cancelUserAttendanceRequest|date: $date"
+        )
+        val userAccountId = getAuthenticatedUserAccountId() ?: return false
+
+        val state = AttendanceStatus.NONE
+
+        AttendanceUpdateRequestHandler(
+            accountId = userAccountId,
+            status = state,
+            eventNotifier = attendanceEventNotifier,
+            date = date,
+            networkMonitor = networkMonitor,
+            offlineRequestDataApi = offlineRequestDataApi,
+            accountDataApi = accountDataApi,
+        ).handleRequest()
+        return true
     }
 }
 

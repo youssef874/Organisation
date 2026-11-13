@@ -1,6 +1,6 @@
 package com.example.orgcore.internal.commun
 
-import com.example.orgcore.api.model.RequestPriority
+import com.example.orgcore.internal.commun.model.RequestPriority
 import com.example.orgdatabase.public.model.DBOfflineRequest
 import com.example.orgdatabase.public.model.OfflineRequestType
 import java.util.UUID
