@@ -100,8 +100,7 @@ sealed class FakeData {
                     checkIn = 1000L,
                     checkOut = 5000L,
                     date = dateToMillis(2026, 11, 10),
-                    attendanceStatus = AttendanceStatus.PRESENT,
-                    isApproved = true
+                    attendanceStatus = AttendanceStatus.PRESENT
                 ),
                 Attendance(
                     id = "att_2",
@@ -109,8 +108,7 @@ sealed class FakeData {
                     checkIn = 0L,
                     checkOut = 0L,
                     date = dateToMillis(2026, 11, 9),
-                    attendanceStatus = AttendanceStatus.PRESENT,
-                    isApproved = true
+                    attendanceStatus = AttendanceStatus.PRESENT
                 ),
                 Attendance(
                     id = "att_5",
@@ -118,8 +116,7 @@ sealed class FakeData {
                     checkIn = 0L,
                     checkOut = 0L,
                     date = dateToMillis(2026, 11, 18),
-                    attendanceStatus = AttendanceStatus.PENDING,
-                    isApproved = true
+                    attendanceStatus = AttendanceStatus.PENDING
                 )
             )
     }
@@ -144,8 +141,7 @@ sealed class FakeData {
                     checkIn = 1000L,
                     checkOut = 5000L,
                     date = 300000L,
-                    attendanceStatus = AttendanceStatus.PRESENT,
-                    isApproved = true
+                    attendanceStatus = AttendanceStatus.PRESENT
                 )
             )
     }
@@ -170,8 +166,7 @@ sealed class FakeData {
                     checkIn = 1000L,
                     checkOut = 5000L,
                     date = 400000L,
-                    attendanceStatus = AttendanceStatus.PRESENT,
-                    isApproved = true
+                    attendanceStatus = AttendanceStatus.PRESENT
                 )
             )
     }

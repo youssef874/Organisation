@@ -24,6 +24,17 @@ data class AttendanceStatusUpdateSuccess(
 ) : AttendanceEvents(attendanceAccountId, AttendanceEventType.ATTENDANCE_STATUS_UPDATE_SUCCESS)
 
 /**
+ * Event representing an attendance status update successfully queued offline.
+ *
+ * @property attendanceAccountId The database ID of the account whose attendance update was queued.
+ * @property state The targeted [AttendanceStatus].
+ */
+data class AttendanceStatusUpdateOfflineQueued(
+    val attendanceAccountId: Long,
+    val state: @AttendanceStatus String
+) : AttendanceEvents(attendanceAccountId, AttendanceEventType.ATTENDANCE_STATUS_UPDATE_OFFLINE_QUEUED)
+
+/**
  * Event representing a failed attendance status update.
  *
  * @property attendanceAccountId The database ID of the account whose attendance update failed.

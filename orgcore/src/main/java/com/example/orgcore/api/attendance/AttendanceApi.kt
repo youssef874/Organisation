@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import com.example.orgcore.SDKComponent
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
+import com.example.orgcore.api.model.OrgEvent
 import com.example.orgcore.internal.ServicesProvider
 import kotlinx.coroutines.flow.Flow
 
@@ -316,4 +317,13 @@ object AttendanceApi {
     suspend fun cancelUserAttendanceRequest(
         date: Long
     ): Boolean = provider().cancelUserAttendanceRequest(date)
+
+    /**
+     * Observes attendance-related events using a [Flow].
+     *
+     * @param eventType The event type string to observe (e.g., [com.example.orgcore.api.attendance.event.AttendanceEventType.ATTENDANCE_STATUS_UPDATE_SUCCESS]).
+     * @return A Flow that emits matching events as they occur.
+     */
+    fun observeAttendanceEvents(eventType: String): Flow<OrgEvent> =
+        provider().observeAttendanceEvents(eventType)
 }

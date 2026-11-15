@@ -18,6 +18,8 @@ internal class FakeAccountOwnerRequest(
 ): ServerRequest<Account> {
 
 
+    override fun payload(): String = ""
+
     override suspend fun request(): NetworkResult<Account> {
         if (shouldThrowException) {
             throw RuntimeException("Unexpected server error")

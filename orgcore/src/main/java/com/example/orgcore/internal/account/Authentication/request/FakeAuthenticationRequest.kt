@@ -22,6 +22,8 @@ internal class FakeAuthenticationRequest(
         private const val REQUEST_TIMEOUT = 5000L
     }
 
+    override fun payload(): String = "userName=$userName"
+
     override suspend fun request(): NetworkResult<Account> {
         if (!networkMonitor.isConnected()) {
             return NetworkResult.Error(

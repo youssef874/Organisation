@@ -15,4 +15,9 @@ internal interface ServerRequest<T> {
      * @return A [NetworkResult] containing the data on success or error details on failure.
      */
     suspend fun request(): NetworkResult<T>
+
+    /**
+     * Returns the serialized payload representation for offline caching or request identification.
+     */
+    fun payload(): String
 }

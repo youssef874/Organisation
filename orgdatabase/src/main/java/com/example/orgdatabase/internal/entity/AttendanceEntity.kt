@@ -40,8 +40,9 @@ internal data class AttendanceEntity(
     val attendanceStatus: String,
     @ColumnInfo(name = COLUMN_REQUEST_REASON)
     val requestReason: String? = null,
-    @ColumnInfo(name = COLUMN_IS_APPROVED)
-    val isApproved: Boolean = false,
+    /**
+     * True if the request was handled successfully by the server but the supervisor has not accepted or rejected yet, otherwise false.
+     */
     @ColumnInfo(name = COLUMN_IS_REQUEST_IN_PROGRESS)
     val isRequestInProgress: Boolean = false
 ) {
@@ -55,7 +56,6 @@ internal data class AttendanceEntity(
         const val COLUMN_DATE = "date"
         const val COLUMN_ATTENDANCE_STATUS = "attendance_status"
         const val COLUMN_REQUEST_REASON = "request_reason"
-        const val COLUMN_IS_APPROVED = "is_approved"
         const val COLUMN_IS_REQUEST_IN_PROGRESS = "is_request_in_progress"
 
         // Status values

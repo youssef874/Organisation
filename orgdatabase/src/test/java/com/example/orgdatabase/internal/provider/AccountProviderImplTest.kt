@@ -177,8 +177,7 @@ internal class AccountProviderImplTest {
                 checkIn = 300L,
                 checkOut = 400L,
                 date = 200L,
-                attendanceStatus = AttendanceStatusType.PRESENT,
-                isApproved = true
+                attendanceStatus = AttendanceStatusType.PRESENT
             )
         )
         val result = accountProvider.updateAttendances(accountId, newAttendances)
@@ -187,7 +186,6 @@ internal class AccountProviderImplTest {
         val records = attendanceDao.getAttendanceByAccountId(accountId)
         assertEquals(1, records.size)
         assertEquals(AttendanceStatusType.PRESENT, records[0].attendanceStatus)
-        assertTrue(records[0].isApproved)
     }
 
     @Test
@@ -482,8 +480,7 @@ internal class AccountProviderImplTest {
             checkIn = 100L,
             checkOut = 200L,
             date = 1000L,
-            attendanceStatus = AttendanceStatusType.PRESENT,
-            isApproved = true
+            attendanceStatus = AttendanceStatusType.PRESENT
         )
 
         val result = accountProvider.addAttendance(dbAttendance)
@@ -492,7 +489,6 @@ internal class AccountProviderImplTest {
         val records = attendanceDao.getAttendanceByAccountId(accountId)
         assertEquals(1, records.size)
         assertEquals(AttendanceStatusType.PRESENT, records[0].attendanceStatus)
-        assertTrue(records[0].isApproved)
     }
 
     @Test

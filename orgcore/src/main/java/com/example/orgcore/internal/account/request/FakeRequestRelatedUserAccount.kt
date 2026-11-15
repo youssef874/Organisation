@@ -17,6 +17,8 @@ internal class FakeRequestRelatedUserAccount(
     var responseCode: Int = 200,
     var shouldThrowException: Boolean = false
 ): ServerRequest<List<Account>> {
+    override fun payload(): String = ""
+
     override suspend fun request(): NetworkResult<List<Account>> {
         if (shouldThrowException) {
             throw RuntimeException("Unexpected server error")

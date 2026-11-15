@@ -1,9 +1,10 @@
 package com.example.orgcore.internal.attendance
 
 import android.content.Context
+import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
-import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.commun.event.FakeOrgEventNotifier
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.api.OfflineRequestDataApi
@@ -12,6 +13,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,12 +37,10 @@ class AttendanceProviderDefaultTest {
     private lateinit var networkMonitor: NetworkMonitor
 
     @Mock
-    private lateinit var attendanceEventNotifier: OrgEventNotifier
-
-    @Mock
     private lateinit var offlineRequestDataApi: OfflineRequestDataApi
 
     private lateinit var fakeAuthProvider: FakeAuthenticationProvider
+    private lateinit var fakeEventNotifier: FakeOrgEventNotifier
     private lateinit var attendanceProvider: AttendanceProviderDefault
 
     @Before
@@ -47,12 +48,13 @@ class AttendanceProviderDefaultTest {
         MockitoAnnotations.openMocks(this)
         context = RuntimeEnvironment.getApplication().applicationContext
         fakeAuthProvider = FakeAuthenticationProvider()
+        fakeEventNotifier = FakeOrgEventNotifier()
         attendanceProvider = AttendanceProviderDefault(
             context = context,
             accountDataApi = accountDataApi,
             authenticationProvider = fakeAuthProvider,
             networkMonitor = networkMonitor,
-            attendanceEventNotifier = attendanceEventNotifier,
+            attendanceEventNotifier = fakeEventNotifier,
             offlineRequestDataApi = offlineRequestDataApi
         )
     }
@@ -169,5 +171,37 @@ class AttendanceProviderDefaultTest {
         val result = attendanceProvider.getUserAttendanceRapport()
 
         assertEquals(emptyList<Any>(), result)
+    }
+
+    @Test
+    fun `cancelUserAttendanceRequest returns false when no user is authenticated`() = runTest {
+        val result = attendanceProvider.cancelUserAttendanceRequest(1500L)
+        assertFalse(result)
+    }
+
+    @Test
+    fun `cancelUserAttendanceRequest succeeds when user is authenticated and network connected`() = runTest {
+        val serverId = "server_user_1"
+        val localAccountId = 99L
+        val date = 1500L
+        val mockAccount = DBAccount(
+            id = localAccountId,
+            name = "Test User",
+            isUser = true,
+            accountType = 2,
+            serverId = serverId
+        )
+
+        fakeAuthProvider.authenticatedUserServerIdDataStoreItemProvider.updateData(serverId)
+        `when`(accountDataApi.getAccountByServerId(serverId)).thenReturn(mockAccount)
+        `when`(networkMonitor.isConnected()).thenReturn(true)
+        `when`(accountDataApi.updateAttendanceStatus(org.mockito.Mockito.eq(localAccountId), org.mockito.Mockito.eq(date), org.mockito.Mockito.anyString())).thenReturn(true)
+
+        val result = attendanceProvider.cancelUserAttendanceRequest(date)
+
+        assertTrue(result)
+        val event = fakeEventNotifier.lastEvent as? AttendanceStatusUpdateSuccess
+        assertEquals(localAccountId, event?.attendanceAccountId)
+        assertEquals(AttendanceStatus.NONE, event?.newState)
     }
 }

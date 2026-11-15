@@ -7,8 +7,10 @@ import com.example.orgcore.api.model.Result
 import com.example.orgcore.api.network.data.NetworkConnection
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
 import com.example.orgcore.internal.account.Authentication.request.FakeAuthenticationRequest
+import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.internal.datastore.DataStoreItemProvider
 import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -39,6 +41,8 @@ class DefaultAuthenticationServiceTest {
                 FakeAuthenticationRequest(networkMonitor, userName, psw)
             },
             authenticationProvider = authenticationProvider,
+            networkMonitor = networkMonitor,
+            offlineQueueCache = OfflineQueueCache(OfflineRequestDataApi(context))
         )
     }
 

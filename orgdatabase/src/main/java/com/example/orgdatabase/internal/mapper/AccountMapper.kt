@@ -48,7 +48,6 @@ internal fun AttendanceEntity.toDBAttendance(): DBAttendance {
         date = date,
         attendanceStatus = attendanceStatus,
         requestReason = requestReason,
-        isApproved = isApproved,
         isRequestInProgress = isRequestInProgress
     )
 }
@@ -63,7 +62,6 @@ internal fun DBAttendance.toAttendanceEntity(): AttendanceEntity {
         date = date,
         attendanceStatus = attendanceStatus,
         requestReason = requestReason,
-        isApproved = isApproved,
         isRequestInProgress = isRequestInProgress
     )
 }

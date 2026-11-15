@@ -13,6 +13,8 @@ internal class FakeUserAttendanceRapportRequest(
     var shouldThrowException: Boolean = false
 ): ServerRequest<List<Attendance>> {
     
+    override fun payload(): String = ""
+
     override suspend fun request(): NetworkResult<List<Attendance>> {
         if (shouldThrowException) {
             throw RuntimeException("Unexpected server error")

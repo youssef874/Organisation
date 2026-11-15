@@ -33,7 +33,8 @@ internal class AttendanceUpdateRequestHandler(
         offlineRequestDataApi
     ),
     request: ServerRequest<@AttendanceStatus String> = FakerRequestAccountAttendanceStatusUpdate(
-        newStatus = status
+        newStatus = status,
+        accountId = accountId
     ),
     cache: OfflineCache<@AttendanceStatus String> = AccountAttendanceStateUpdateCache(
             accountId = accountId,
@@ -50,7 +51,7 @@ internal class AttendanceUpdateRequestHandler(
         createOfflineCache(
             priority = RequestPriority.PRIORITY_HIGH,
             requestType = OfflineRequestType.ATTENDANCE,
-            payload = "accountId=$accountId,status=$status"
+            payload = request.payload()
         )
     override val className: String = "AttendanceUpdateRequestHandler"
     override val tag: String = "ATTENDANCE"

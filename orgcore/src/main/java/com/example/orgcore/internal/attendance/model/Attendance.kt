@@ -11,6 +11,8 @@ data class Attendance(
     val date: Long,
     val attendanceStatus: @AttendanceStatus String,
     val requestReason: String? = null,
-    val isApproved: Boolean = false,
+    /**
+     * True if the request was handled successfully by the server but the supervisor has not accepted or rejected yet, otherwise false.
+     */
     val isRequestInProgress: Boolean = false
 )

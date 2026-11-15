@@ -7,7 +7,8 @@ import androidx.annotation.StringDef
  */
 @StringDef(
     AttendanceEventType.ATTENDANCE_STATUS_UPDATE_SUCCESS,
-    AttendanceEventType.ATTENDANCE_STATUS_UPDATE_FAILURE
+    AttendanceEventType.ATTENDANCE_STATUS_UPDATE_FAILURE,
+    AttendanceEventType.ATTENDANCE_STATUS_UPDATE_OFFLINE_QUEUED
 )
 @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER)
 annotation class AttendanceEventType {
@@ -16,5 +17,7 @@ annotation class AttendanceEventType {
         const val ATTENDANCE_STATUS_UPDATE_SUCCESS = "attendance_status_update_success"
         /** Event type emitted when an attendance status update fails. */
         const val ATTENDANCE_STATUS_UPDATE_FAILURE = "attendance_status_update_failure"
+        /** Event type emitted when an attendance status update is successfully queued offline. */
+        const val ATTENDANCE_STATUS_UPDATE_OFFLINE_QUEUED = "attendance_status_update_offline_queued"
     }
 }

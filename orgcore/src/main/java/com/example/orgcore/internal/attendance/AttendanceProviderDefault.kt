@@ -3,13 +3,21 @@ package com.example.orgcore.internal.attendance
 import android.content.Context
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.orgcore.api.attendance.event.AttendanceRequestFailReason
+import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateFailed
+import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateOfflineQueued
+import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
+import com.example.orgcore.api.model.OrgEvent
 import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
-import com.example.orgcore.internal.attendance.handler.AttendanceUpdateRequestHandler
+import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
 import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.RequestResult
+import com.example.orgcore.internal.commun.cache.OfflineQueueCache
+import com.example.orgcore.internal.commun.event.OrgEventListener
 import com.example.orgcore.internal.commun.event.OrgEventNotifier
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
@@ -26,6 +34,7 @@ internal class AttendanceProviderDefault(
     private val authenticationProvider: AuthenticationProvider = ServicesProvider.getAuthenticationProvider(context),
     private val networkMonitor: NetworkMonitor = ServicesProvider.getNetworkMonitor(),
     private val attendanceEventNotifier: OrgEventNotifier = ServicesProvider.getAttendanceEventsDispatcher(),
+    private val orgEventListener: OrgEventListener = ServicesProvider.getAttendanceEventsListener(),
     private val offlineRequestDataApi: OfflineRequestDataApi = OfflineRequestDataApi((context))
 ) : AttendanceProvider {
 
@@ -287,19 +296,70 @@ internal class AttendanceProviderDefault(
             "$CLASS_NAME|cancelUserAttendanceRequest|date: $date"
         )
         val userAccountId = getAuthenticatedUserAccountId() ?: return false
-
         val state = AttendanceStatus.NONE
 
-        AttendanceUpdateRequestHandler(
-            accountId = userAccountId,
-            status = state,
-            eventNotifier = attendanceEventNotifier,
-            date = date,
-            networkMonitor = networkMonitor,
-            offlineRequestDataApi = offlineRequestDataApi,
-            accountDataApi = accountDataApi,
-        ).handleRequest()
-        return true
+        val result = AttendanceRequestExecutionBuilderFactory(accountDataApi)
+            .create(
+                accountId = userAccountId,
+                date = date,
+                state = state
+            )
+            .execute(networkMonitor, OfflineQueueCache(offlineRequestDataApi))
+
+        return when (result) {
+            is RequestResult.Success -> {
+                attendanceEventNotifier.notify(
+                    AttendanceStatusUpdateSuccess(
+                        attendanceAccountId = userAccountId,
+                        newState = result.data
+                    )
+                )
+                true
+            }
+            is RequestResult.OfflineQueued -> {
+                attendanceEventNotifier.notify(
+                    AttendanceStatusUpdateOfflineQueued(
+                        attendanceAccountId = userAccountId,
+                        state = state
+                    )
+                )
+                true
+            }
+            is RequestResult.ServerFailure -> {
+                attendanceEventNotifier.notify(
+                    AttendanceStatusUpdateFailed(
+                        attendanceAccountId = userAccountId,
+                        state = state,
+                        failReason = result.errorCode.toAttendanceFailReason()
+                    )
+                )
+                false
+            }
+            is RequestResult.ConnectionLost -> {
+                attendanceEventNotifier.notify(
+                    AttendanceStatusUpdateFailed(
+                        attendanceAccountId = userAccountId,
+                        state = state,
+                        failReason = AttendanceRequestFailReason.NO_CONNECTION
+                    )
+                )
+                false
+            }
+            is RequestResult.CacheFailure -> {
+                attendanceEventNotifier.notify(
+                    AttendanceStatusUpdateFailed(
+                        attendanceAccountId = userAccountId,
+                        state = state,
+                        failReason = AttendanceRequestFailReason.DATABASE_ERROR
+                    )
+                )
+                false
+            }
+        }
+    }
+
+    override fun observeAttendanceEvents(eventType: String): Flow<OrgEvent> {
+        return orgEventListener.observe(eventType)
     }
 }
 

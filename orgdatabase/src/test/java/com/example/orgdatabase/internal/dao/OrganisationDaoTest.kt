@@ -107,7 +107,6 @@ internal class OrganisationDaoTest {
                 date = 10000L,
                 attendanceStatus = AttendanceEntity.STATUS_PRESENT,
                 requestReason = "None",
-                isApproved = true,
                 isRequestInProgress = false
             )
         )
@@ -115,7 +114,6 @@ internal class OrganisationDaoTest {
         val records = attendanceDao.getAttendanceByAccountId(accountId)
         assertEquals(1, records.size)
         assertEquals(AttendanceEntity.STATUS_PRESENT, records[0].attendanceStatus)
-        assertTrue(records[0].isApproved)
         assertEquals(id, records.first().id)
     }
 
@@ -129,7 +127,6 @@ internal class OrganisationDaoTest {
                 checkOut = 2000L,
                 date = 10000L,
                 attendanceStatus = AttendanceEntity.STATUS_ABSENT,
-                isApproved = false,
                 isRequestInProgress = true
             )
         )

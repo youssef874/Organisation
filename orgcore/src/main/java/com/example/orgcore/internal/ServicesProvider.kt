@@ -17,10 +17,12 @@ import com.example.orgcore.internal.account.service.AccountServiceImpl
 import com.example.orgcore.internal.attendance.AttendanceEventHandler
 import com.example.orgcore.internal.attendance.AttendanceProvider
 import com.example.orgcore.internal.attendance.AttendanceProviderDefault
+import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.commun.event.OrgEventListener
 import com.example.orgcore.internal.commun.event.OrgEventNotifier
 import com.example.orgcore.internal.network.ConnectivityManagerNetworkMonitor
 import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import com.youssefmkh.core.internal.commun.datastore.DataStoreFactory
 
 internal object ServicesProvider {
@@ -42,6 +44,7 @@ internal object ServicesProvider {
                 FakeAuthenticationRequest(getNetworkMonitor(), userName, psw)
             },
             authenticationProvider = getAuthenticationProvider(context),
+            offlineQueueCache = OfflineQueueCache(OfflineRequestDataApi(context))
         )
 
     fun accountService(context: Context): AccountService =

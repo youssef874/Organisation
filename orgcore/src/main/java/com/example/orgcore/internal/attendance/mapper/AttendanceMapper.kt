@@ -22,7 +22,6 @@ internal fun Attendance.toDBAttendance(accountId: Long): DBAttendance {
         date = date,
         attendanceStatus = attendanceStatus,
         requestReason = requestReason,
-        isApproved = isApproved,
         isRequestInProgress = isRequestInProgress
     )
 }
