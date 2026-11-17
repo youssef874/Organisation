@@ -3,13 +3,14 @@ package com.example.orgcore.internal.commun.sync
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.api.model.SyncResult
 import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.request.ServerRequest
 import kotlinx.coroutines.CancellationException
 
 /**
  * Base class for synchronizers that handles common network and caching flow.
  *
  * It provides a standard implementation of the [synchronize] method that:
- * 1. Fetches data from the [com.example.orgcore.internal.commun.ServerRequest].
+ * 1. Fetches data from the [com.example.orgcore.internal.commun.request.ServerRequest].
  * 2. Handles network success and errors.
  * 3. Delegates caching logic to [performCaching].
  * 4. Returns a [SyncResult].
@@ -18,7 +19,7 @@ import kotlinx.coroutines.CancellationException
  * @property serverRequest The request used to fetch data from the server.
  */
 internal abstract class BaseSynchronizer<T>(
-    private val serverRequest: com.example.orgcore.internal.commun.ServerRequest<T>
+    private val serverRequest: ServerRequest<T>
 ) : Synchronizer {
 
     protected abstract val className: String

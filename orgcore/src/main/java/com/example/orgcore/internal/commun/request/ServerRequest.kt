@@ -1,4 +1,4 @@
-package com.example.orgcore.internal.commun
+package com.example.orgcore.internal.commun.request
 
 import com.example.orgcore.api.model.NetworkResult
 
@@ -20,4 +20,9 @@ internal interface ServerRequest<T> {
      * Returns the serialized payload representation for offline caching or request identification.
      */
     fun payload(): String
+
+    /**
+     * Injects or updates the unique request UUID for tracking or offline queuing.
+     */
+    fun setRequestUuid(uuid: String) {}
 }

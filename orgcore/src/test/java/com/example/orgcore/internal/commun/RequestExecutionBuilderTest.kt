@@ -3,6 +3,8 @@ package com.example.orgcore.internal.commun
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.FakeCache
 import com.example.orgcore.internal.commun.model.RequestPriority
+import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.request.ServerRequest
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -107,5 +109,30 @@ class RequestExecutionBuilderTest {
 
         assertTrue(result is RequestResult.ServerFailure)
         assertEquals(-1, (result as RequestResult.ServerFailure).errorCode)
+    }
+
+    @Test
+    fun `injects offline queue uuid into request payload when offline queued`() = runTest {
+        fakeNetworkMonitor.isConnectedVal = false
+        var injectedUuid: String? = null
+        val serverRequest = object : ServerRequest<String> {
+            var uuid: String = ""
+            override suspend fun request(): NetworkResult<String> = NetworkResult.Success("data")
+            override fun payload(): String = "uuid=$uuid"
+            override fun setRequestUuid(uuid: String) {
+                this.uuid = uuid
+                injectedUuid = uuid
+            }
+        }
+
+        val result = RequestExecutionBuilder(serverRequest)
+            .requestType("test_type")
+            .allowOfflineQueue(true)
+            .execute(fakeNetworkMonitor, fakeOfflineQueueCache)
+
+        assertTrue(result is RequestResult.OfflineQueued)
+        assertNotNull(fakeOfflineQueueCache.cachedRequest)
+        assertEquals(injectedUuid, fakeOfflineQueueCache.cachedRequest?.requestUuid)
+        assertEquals("uuid=$injectedUuid", fakeOfflineQueueCache.cachedRequest?.payloadJson)
     }
 }

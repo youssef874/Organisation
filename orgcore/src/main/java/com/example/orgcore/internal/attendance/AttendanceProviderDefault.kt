@@ -15,10 +15,10 @@ import com.example.orgcore.internal.account.Authentication.provider.Authenticati
 import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
 import com.example.orgcore.internal.commun.LoggerHelper
-import com.example.orgcore.internal.commun.RequestResult
 import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.commun.event.OrgEventListener
 import com.example.orgcore.internal.commun.event.OrgEventNotifier
+import com.example.orgcore.internal.commun.model.RequestResult
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.api.OfflineRequestDataApi

@@ -5,24 +5,30 @@ import com.example.orgcore.api.account.model.AuthenticationErrorType
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.commun.FakeData
-import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 internal class FakeAuthenticationRequest(
     private val networkMonitor: NetworkMonitor,
     private val userName: String,
-    private val psw: String
+    private val psw: String,
+    private var requestUuid: String = UUID.randomUUID().toString()
 ) : ServerRequest<Account> {
 
     companion object {
         private const val REQUEST_TIMEOUT = 5000L
     }
 
-    override fun payload(): String = "userName=$userName"
+    override fun setRequestUuid(uuid: String) {
+        requestUuid = uuid
+    }
+
+    override fun payload(): String = "{\"requestUuid\":\"$requestUuid\",\"requestType\":\"authentication\",\"userName\":\"$userName\",\"psw\":\"$psw\"}"
 
     override suspend fun request(): NetworkResult<Account> {
         if (!networkMonitor.isConnected()) {

@@ -9,9 +9,9 @@ import com.example.orgcore.internal.account.Authentication.AuthenticationRequest
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.commun.LoggerHelper
-import com.example.orgcore.internal.commun.RequestResult
-import com.example.orgcore.internal.commun.ServerRequest
 import com.example.orgcore.internal.commun.cache.OfflineQueueCache
+import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

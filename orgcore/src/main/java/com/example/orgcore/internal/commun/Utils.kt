@@ -7,11 +7,12 @@ import java.util.UUID
 
 
 internal fun createOfflineCache(
+    requestUuid: String = UUID.randomUUID().toString(),
     priority: @RequestPriority Int,
     requestType: @OfflineRequestType String,
     payload: String
 ) = DBOfflineRequest(
-    requestUuid = UUID.randomUUID().toString(),
+    requestUuid = requestUuid,
     priority = priority,
     requestType = requestType,
     payloadJson = payload,

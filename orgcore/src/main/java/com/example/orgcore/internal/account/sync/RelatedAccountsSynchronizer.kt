@@ -2,8 +2,8 @@ package com.example.orgcore.internal.account.sync
 
 import com.example.orgcore.internal.account.AccountSettings
 import com.example.orgcore.internal.account.model.Account
-import com.example.orgcore.internal.commun.ServerRequest
 import com.example.orgcore.internal.commun.cache.OfflineCache
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.commun.sync.BaseSynchronizer
 
 /**

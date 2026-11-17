@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
+import com.example.orgcore.internal.attendance.request.FakerRequestAccountAttendanceStatusUpdate
 import com.example.orgcore.internal.commun.event.FakeOrgEventNotifier
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
@@ -203,5 +204,22 @@ class AttendanceProviderDefaultTest {
         val event = fakeEventNotifier.lastEvent as? AttendanceStatusUpdateSuccess
         assertEquals(localAccountId, event?.attendanceAccountId)
         assertEquals(AttendanceStatus.NONE, event?.newState)
+    }
+
+    @Test
+    fun `FakerRequestAccountAttendanceStatusUpdate payload contains json structure with accountId date requestType businessType and status`() {
+        val request = FakerRequestAccountAttendanceStatusUpdate(
+            newStatus = AttendanceStatus.NONE,
+            accountId = 123L,
+            date = 1500L,
+            requestUuid = "test-uuid"
+        )
+        val payload = request.payload()
+        assertTrue(payload.contains("\"requestUuid\":\"test-uuid\""))
+        assertTrue(payload.contains("\"accountId\":123"))
+        assertTrue(payload.contains("\"date\":1500"))
+        assertTrue(payload.contains("\"requestType\":\"attendance\""))
+        assertTrue(payload.contains("\"businessType\":\"cancel_attendance_request\""))
+        assertTrue(payload.contains("\"status\":\"none\""))
     }
 }

@@ -3,7 +3,7 @@ package com.example.orgcore.internal.commun.sync
 import com.example.orgcore.api.model.SyncResult
 
 /**
- * Orchestrates the synchronization flow, typically coordinating between a [com.example.orgcore.internal.commun.ServerRequest]
+ * Orchestrates the synchronization flow, typically coordinating between a [com.example.orgcore.internal.commun.request.ServerRequest]
  * and an [com.example.orgcore.internal.commun.cache.OfflineCache].
  */
 internal interface Synchronizer {

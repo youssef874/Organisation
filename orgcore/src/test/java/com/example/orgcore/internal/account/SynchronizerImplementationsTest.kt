@@ -17,8 +17,8 @@ import com.example.orgcore.internal.attendance.cache.UserAttendanceRapportCache
 import com.example.orgcore.internal.attendance.request.FakeUserAttendanceRapportRequest
 import com.example.orgcore.internal.attendance.sync.UserAttendanceRapportSynchronizer
 import com.example.orgcore.internal.commun.FakeData
-import com.example.orgcore.internal.commun.ServerRequest
 import com.example.orgcore.internal.commun.cache.OfflineCache
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.test.runTest

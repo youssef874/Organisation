@@ -19,7 +19,8 @@ internal class AttendanceRequestExecutionBuilderFactory(
     ) = RequestExecutionBuilder(
         request = FakerRequestAccountAttendanceStatusUpdate(
             newStatus = state,
-            accountId = accountId
+            accountId = accountId,
+            date = date
         )
     )
         .allowOfflineQueue(true)

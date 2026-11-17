@@ -3,8 +3,11 @@ package com.example.orgcore.internal.commun
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgcore.internal.commun.model.RequestPriority
+import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.model.DBOfflineRequest
+import java.util.UUID
 
 /**
  * Fluent builder for executing remote server requests with connectivity checks,
@@ -38,7 +41,10 @@ internal class RequestExecutionBuilder<T>(
     ): RequestResult<T> {
         if (!networkMonitor.isConnected()) {
             if (allowOfflineQueue && requestType != null) {
+                val uuid = UUID.randomUUID().toString()
+                request.setRequestUuid(uuid)
                 val dbOfflineRequest = createOfflineCache(
+                    requestUuid = uuid,
                     priority = priority,
                     requestType = requestType!!,
                     payload = request.payload()

@@ -2,7 +2,7 @@ package com.example.orgcore.commun
 
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.api.model.SyncResult
-import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.commun.sync.BaseSynchronizer
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

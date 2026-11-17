@@ -4,7 +4,8 @@ import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.commun.FakeData
-import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.request.ServerRequest
+import java.util.UUID
 
 /**
  * Fake implementation of [ServerRequest] to fetch the current account owner's profile.
@@ -14,11 +15,15 @@ import com.example.orgcore.internal.commun.ServerRequest
 internal class FakeAccountOwnerRequest(
     private val authenticationProvider: AuthenticationProvider,
     var responseCode: Int = 200,
-    var shouldThrowException: Boolean = false
+    var shouldThrowException: Boolean = false,
+    private var requestUuid: String = UUID.randomUUID().toString()
 ): ServerRequest<Account> {
 
+    override fun setRequestUuid(uuid: String) {
+        requestUuid = uuid
+    }
 
-    override fun payload(): String = ""
+    override fun payload(): String = "{\"requestUuid\":\"$requestUuid\",\"requestType\":\"account\",\"action\":\"get_owner_profile\"}"
 
     override suspend fun request(): NetworkResult<Account> {
         if (shouldThrowException) {

@@ -5,7 +5,7 @@ import com.example.orgcore.internal.account.Authentication.cache.AuthenticationL
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.commun.RequestExecutionBuilder
-import com.example.orgcore.internal.commun.ServerRequest
+import com.example.orgcore.internal.commun.request.ServerRequest
 
 /**
  * Factory for building configured [RequestExecutionBuilder] instances for authentication operations.
