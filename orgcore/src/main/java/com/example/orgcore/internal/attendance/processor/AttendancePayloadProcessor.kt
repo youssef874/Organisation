@@ -1,5 +1,6 @@
 package com.example.orgcore.internal.attendance.processor
 
+import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
 import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgcore.internal.commun.processor.PayloadProcessor
@@ -9,7 +10,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 internal class AttendancePayloadProcessor(
-    private val attendanceUpdateStatePayloadProcessor: PayloadProcessor<*>
+    private val attendanceUpdatePayloadProcessor: PayloadProcessor<Attendance>
 ) : PayloadProcessor<Any> {
 
     companion object {
@@ -23,9 +24,8 @@ internal class AttendancePayloadProcessor(
             val businessType = json.optString(KEY_BUSINESS_TYPE)
 
             activeProcessor = when (businessType) {
-                AttendanceBusinessType.CANCEL_ATTENDANCE_REQUEST,
-                AttendanceBusinessType.ATTENDANCE_STATUS_UPDATE -> {
-                    attendanceUpdateStatePayloadProcessor.apply {
+                AttendanceBusinessType.ATTENDANCE_UPDATE -> {
+                    attendanceUpdatePayloadProcessor.apply {
                         decode(json)
                     }
                 }

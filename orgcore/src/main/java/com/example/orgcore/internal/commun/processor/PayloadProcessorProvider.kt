@@ -1,7 +1,8 @@
 package com.example.orgcore.internal.commun.processor
 
+import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.processor.AttendancePayloadProcessor
-import com.example.orgcore.internal.attendance.processor.AttendanceUpdateStatePayloadProcessor
+import com.example.orgcore.internal.attendance.processor.AttendanceUpdatePayloadProcessor
 import com.example.orgdatabase.public.api.AccountDataApi
 
 /**
@@ -10,10 +11,10 @@ import com.example.orgdatabase.public.api.AccountDataApi
 internal object PayloadProcessorProvider {
 
     /**
-     * Provides an instance of [AttendanceUpdateStatePayloadProcessor] for attendance status/cancellation updates.
+     * Provides an instance of [AttendanceUpdatePayloadProcessor] for attendance status/cancellation updates.
      */
-    fun getAttendanceUpdateStatePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<*> {
-        return AttendanceUpdateStatePayloadProcessor(accountDataApi)
+    fun getAttendanceUpdatePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<Attendance> {
+        return AttendanceUpdatePayloadProcessor(accountDataApi)
     }
 
     /**
@@ -21,7 +22,7 @@ internal object PayloadProcessorProvider {
      */
     fun getAttendancePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<*> {
         return AttendancePayloadProcessor(
-            getAttendanceUpdateStatePayloadProcessor(accountDataApi)
+            getAttendanceUpdatePayloadProcessor(accountDataApi)
         )
     }
 

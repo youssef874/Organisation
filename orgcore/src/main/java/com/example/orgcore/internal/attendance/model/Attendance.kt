@@ -4,6 +4,7 @@ import com.example.orgcore.api.attendance.model.AttendanceStatus
 import java.util.UUID
 
 data class Attendance(
+    //Server attendance id
     val id: String = UUID.randomUUID().toString(),
     val serverAccountId: String,
     val checkIn: Long,

@@ -14,6 +14,7 @@ import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
+import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.commun.event.OrgEventListener
@@ -31,7 +32,9 @@ import kotlinx.coroutines.flow.mapNotNull
 internal class AttendanceProviderDefault(
     private val context: Context,
     private val accountDataApi: AccountDataApi = AccountDataApi(context),
-    private val authenticationProvider: AuthenticationProvider = ServicesProvider.getAuthenticationProvider(context),
+    private val authenticationProvider: AuthenticationProvider = ServicesProvider.getAuthenticationProvider(
+        context
+    ),
     private val networkMonitor: NetworkMonitor = ServicesProvider.getNetworkMonitor(),
     private val attendanceEventNotifier: OrgEventNotifier = ServicesProvider.getAttendanceEventsDispatcher(),
     private val orgEventListener: OrgEventListener = ServicesProvider.getAttendanceEventsListener(),
@@ -46,14 +49,20 @@ internal class AttendanceProviderDefault(
     override suspend fun getAttendanceRapportByAccountId(
         accountId: Long
     ): List<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceRapportByAccountId|accountId: $accountId")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceRapportByAccountId|accountId: $accountId"
+        )
         return accountDataApi.getAttendancesByAccountId(accountId).map { it.toOrgAttendance() }
     }
 
     override fun observeAttendanceRapportByAccountId(
         accountId: Long
     ): Flow<List<OrgAttendance>> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeAttendanceRapportByAccountId|accountId: $accountId")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeAttendanceRapportByAccountId|accountId: $accountId"
+        )
         return accountDataApi.observeAttendancesByAccountId(accountId).map { list ->
             list.map { it.toOrgAttendance() }
         }
@@ -64,8 +73,12 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): List<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceRapportByRange|accountId: $accountId, startRange: $startRange, endRange: $endRange")
-        return accountDataApi.getAttendancesByDateRange(accountId, startRange, endRange).map { it.toOrgAttendance() }
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceRapportByRange|accountId: $accountId, startRange: $startRange, endRange: $endRange"
+        )
+        return accountDataApi.getAttendancesByDateRange(accountId, startRange, endRange)
+            .map { it.toOrgAttendance() }
     }
 
     override suspend fun getAttendanceRapportByRangeChunked(
@@ -75,8 +88,17 @@ internal class AttendanceProviderDefault(
         page: Int,
         pageSize: Int
     ): List<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceRapportByRangeChunked|accountId: $accountId, page: $page, pageSize: $pageSize")
-        return accountDataApi.getAttendancesByDateRangeChunked(accountId, startRange, endRange, page, pageSize).map { it.toOrgAttendance() }
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceRapportByRangeChunked|accountId: $accountId, page: $page, pageSize: $pageSize"
+        )
+        return accountDataApi.getAttendancesByDateRangeChunked(
+            accountId,
+            startRange,
+            endRange,
+            page,
+            pageSize
+        ).map { it.toOrgAttendance() }
     }
 
     override fun observeAttendanceRapportByRangeChunked(
@@ -86,8 +108,17 @@ internal class AttendanceProviderDefault(
         page: Int,
         pageSize: Int
     ): Flow<List<OrgAttendance>> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeAttendanceRapportByRangeChunked|accountId: $accountId, page: $page, pageSize: $pageSize")
-        return accountDataApi.observeAttendancesByDateRangeChunked(accountId, startRange, endRange, page, pageSize).map { list ->
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeAttendanceRapportByRangeChunked|accountId: $accountId, page: $page, pageSize: $pageSize"
+        )
+        return accountDataApi.observeAttendancesByDateRangeChunked(
+            accountId,
+            startRange,
+            endRange,
+            page,
+            pageSize
+        ).map { list ->
             list.map { it.toOrgAttendance() }
         }
     }
@@ -97,7 +128,10 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): PagingSource<Int, OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceRapportByRangePaged|accountId: $accountId")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceRapportByRangePaged|accountId: $accountId"
+        )
         return MappedPagingSource(
             accountDataApi.getAttendancesByDateRangePaged(accountId, startRange, endRange)
         ) { it.toOrgAttendance() }
@@ -108,17 +142,24 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): Flow<List<OrgAttendance>> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeAttendanceRapportByRange|accountId: $accountId")
-        return accountDataApi.observeAttendancesByDateRange(accountId, startRange, endRange).map { list ->
-            list.map { it.toOrgAttendance() }
-        }
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeAttendanceRapportByRange|accountId: $accountId"
+        )
+        return accountDataApi.observeAttendancesByDateRange(accountId, startRange, endRange)
+            .map { list ->
+                list.map { it.toOrgAttendance() }
+            }
     }
 
     override suspend fun getAttendanceRapportForDay(
         accountId: Long,
         date: Long
     ): OrgAttendance? {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceRapportForDay|accountId: $accountId, date: $date")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceRapportForDay|accountId: $accountId, date: $date"
+        )
         return accountDataApi.getAttendanceByDate(accountId, date)?.toOrgAttendance()
     }
 
@@ -126,8 +167,12 @@ internal class AttendanceProviderDefault(
         accountId: Long,
         date: Long
     ): Flow<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeAttendanceRapportForDay|accountId: $accountId, date: $date")
-        return accountDataApi.observeAttendanceByDate(accountId, date).mapNotNull { it?.toOrgAttendance() }
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeAttendanceRapportForDay|accountId: $accountId, date: $date"
+        )
+        return accountDataApi.observeAttendanceByDate(accountId, date)
+            .mapNotNull { it?.toOrgAttendance() }
     }
 
     override suspend fun getAttendanceStatusCountForRange(
@@ -136,8 +181,16 @@ internal class AttendanceProviderDefault(
         endRange: Long,
         attendanceStatus: @AttendanceStatus String
     ): Int {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getAttendanceStatusCountForRange|accountId: $accountId, status: $attendanceStatus")
-        return accountDataApi.getAttendanceCountByStatusAndDateRange(accountId, attendanceStatus, startRange, endRange)
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getAttendanceStatusCountForRange|accountId: $accountId, status: $attendanceStatus"
+        )
+        return accountDataApi.getAttendanceCountByStatusAndDateRange(
+            accountId,
+            attendanceStatus,
+            startRange,
+            endRange
+        )
     }
 
     override fun observeAttendanceStatusCountForRange(
@@ -146,21 +199,32 @@ internal class AttendanceProviderDefault(
         endRange: Long,
         attendanceStatus: @AttendanceStatus String
     ): Flow<Int> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeAttendanceStatusCountForRange|accountId: $accountId, status: $attendanceStatus")
-        return accountDataApi.observeAttendancesByDateRange(accountId, startRange, endRange).map { list ->
-            list.count { it.attendanceStatus == attendanceStatus }
-        }
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeAttendanceStatusCountForRange|accountId: $accountId, status: $attendanceStatus"
+        )
+        return accountDataApi.observeAttendancesByDateRange(accountId, startRange, endRange)
+            .map { list ->
+                list.count { it.attendanceStatus == attendanceStatus }
+            }
     }
 
     private suspend fun getAuthenticatedUserAccountId(): Long? {
-        val serverId = authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
+        val serverId =
+            authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
         if (serverId.isBlank()) {
-            LoggerHelper.logger.w(TAG, "$CLASS_NAME|getAuthenticatedUserAccountId|no authenticated user server id found")
+            LoggerHelper.logger.w(
+                TAG,
+                "$CLASS_NAME|getAuthenticatedUserAccountId|no authenticated user server id found"
+            )
             return null
         }
         val account = accountDataApi.getAccountByServerId(serverId)
         if (account == null) {
-            LoggerHelper.logger.w(TAG, "$CLASS_NAME|getAuthenticatedUserAccountId|no account found for server id: $serverId")
+            LoggerHelper.logger.w(
+                TAG,
+                "$CLASS_NAME|getAuthenticatedUserAccountId|no account found for server id: $serverId"
+            )
             return null
         }
         return account.id
@@ -195,7 +259,10 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): List<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getUserAttendanceRapportByRange|startRange: $startRange, endRange: $endRange")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getUserAttendanceRapportByRange|startRange: $startRange, endRange: $endRange"
+        )
         val accountId = getAuthenticatedUserAccountId() ?: return emptyList()
         return getAttendanceRapportByRange(accountId, startRange, endRange)
     }
@@ -206,7 +273,10 @@ internal class AttendanceProviderDefault(
         page: Int,
         pageSize: Int
     ): List<OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getUserAttendanceRapportByRangeChunked|page: $page, pageSize: $pageSize")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getUserAttendanceRapportByRangeChunked|page: $page, pageSize: $pageSize"
+        )
         val accountId = getAuthenticatedUserAccountId() ?: return emptyList()
         return getAttendanceRapportByRangeChunked(accountId, startRange, endRange, page, pageSize)
     }
@@ -217,7 +287,10 @@ internal class AttendanceProviderDefault(
         page: Int,
         pageSize: Int
     ): Flow<List<OrgAttendance>> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeUserAttendanceRapportByRangeChunked|page: $page, pageSize: $pageSize")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeUserAttendanceRapportByRangeChunked|page: $page, pageSize: $pageSize"
+        )
         return flowWithUserAccountId(emptyList()) { accountId ->
             observeAttendanceRapportByRangeChunked(accountId, startRange, endRange, page, pageSize)
         }
@@ -227,7 +300,10 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): PagingSource<Int, OrgAttendance> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getUserAttendanceRapportByRangePaged|startRange: $startRange, endRange: $endRange")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getUserAttendanceRapportByRangePaged|startRange: $startRange, endRange: $endRange"
+        )
         return UserAttendancePagingSource(
             getAccountId = { getAuthenticatedUserAccountId() },
             createDelegate = { accountId ->
@@ -240,7 +316,10 @@ internal class AttendanceProviderDefault(
         startRange: Long,
         endRange: Long
     ): Flow<List<OrgAttendance>> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeUserAttendanceRapportByRange|startRange: $startRange, endRange: $endRange")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeUserAttendanceRapportByRange|startRange: $startRange, endRange: $endRange"
+        )
         return flowWithUserAccountId(emptyList()) { accountId ->
             observeAttendanceRapportByRange(accountId, startRange, endRange)
         }
@@ -271,7 +350,10 @@ internal class AttendanceProviderDefault(
         endRange: Long,
         attendanceStatus: @AttendanceStatus String
     ): Int {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|getUserAttendanceStatusCountForRange|status: $attendanceStatus")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|getUserAttendanceStatusCountForRange|status: $attendanceStatus"
+        )
         val accountId = getAuthenticatedUserAccountId() ?: return 0
         return getAttendanceStatusCountForRange(accountId, startRange, endRange, attendanceStatus)
     }
@@ -281,7 +363,10 @@ internal class AttendanceProviderDefault(
         endRange: Long,
         attendanceStatus: @AttendanceStatus String
     ): Flow<Int> {
-        LoggerHelper.logger.i(TAG, "$CLASS_NAME|observeUserAttendanceStatusCountForRange|status: $attendanceStatus")
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|observeUserAttendanceStatusCountForRange|status: $attendanceStatus"
+        )
         return flowWithUserAccountId(0) { accountId ->
             observeAttendanceStatusCountForRange(accountId, startRange, endRange, attendanceStatus)
         }
@@ -296,14 +381,24 @@ internal class AttendanceProviderDefault(
             "$CLASS_NAME|cancelUserAttendanceRequest|date: $date"
         )
         val userAccountId = getAuthenticatedUserAccountId() ?: return false
+        val serverId = authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
+        if (serverId.isBlank()) return false
         val state = AttendanceStatus.NONE
+        val dbAttendance = accountDataApi.getAttendanceByDate(
+            accountId = userAccountId, date = date
+        )
+
+        val attendance = Attendance(
+            serverAccountId = serverId,
+            checkIn = dbAttendance?.checkIn ?: 0L,
+            checkOut = dbAttendance?.checkOut ?: 0L,
+            date = date,
+            attendanceStatus = state,
+            id = dbAttendance?.serverId ?: (-1).toString()
+        )
 
         val result = AttendanceRequestExecutionBuilderFactory(accountDataApi)
-            .create(
-                accountId = userAccountId,
-                date = date,
-                state = state
-            )
+            .create(attendance)
             .execute(networkMonitor, OfflineQueueCache(offlineRequestDataApi))
 
         return when (result) {
@@ -311,11 +406,12 @@ internal class AttendanceProviderDefault(
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateSuccess(
                         attendanceAccountId = userAccountId,
-                        newState = result.data
+                        newState = result.data.attendanceStatus
                     )
                 )
                 true
             }
+
             is RequestResult.OfflineQueued -> {
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateOfflineQueued(
@@ -325,6 +421,7 @@ internal class AttendanceProviderDefault(
                 )
                 true
             }
+
             is RequestResult.ServerFailure -> {
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
@@ -335,6 +432,7 @@ internal class AttendanceProviderDefault(
                 )
                 false
             }
+
             is RequestResult.ConnectionLost -> {
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
@@ -345,6 +443,7 @@ internal class AttendanceProviderDefault(
                 )
                 false
             }
+
             is RequestResult.CacheFailure -> {
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
@@ -404,6 +503,7 @@ private class MappedPagingSource<Key : Any, Value : Any, NewValue : Any>(
                 itemsBefore = result.itemsBefore,
                 itemsAfter = result.itemsAfter
             )
+
             is LoadResult.Error -> LoadResult.Error(result.throwable)
             is LoadResult.Invalid -> LoadResult.Invalid()
         }

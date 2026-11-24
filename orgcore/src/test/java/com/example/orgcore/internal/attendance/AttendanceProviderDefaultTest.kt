@@ -3,8 +3,11 @@ package com.example.orgcore.internal.attendance
 import android.content.Context
 import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
 import com.example.orgcore.api.attendance.model.AttendanceStatus
+import com.example.orgcore.commun.anyObject
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
-import com.example.orgcore.internal.attendance.request.FakerRequestAccountAttendanceStatusUpdate
+import com.example.orgcore.internal.attendance.model.Attendance
+import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
+import com.example.orgcore.internal.attendance.request.FakeAttendanceUpdatesServerRequest
 import com.example.orgcore.internal.commun.event.FakeOrgEventNotifier
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
@@ -196,7 +199,8 @@ class AttendanceProviderDefaultTest {
         fakeAuthProvider.authenticatedUserServerIdDataStoreItemProvider.updateData(serverId)
         `when`(accountDataApi.getAccountByServerId(serverId)).thenReturn(mockAccount)
         `when`(networkMonitor.isConnected()).thenReturn(true)
-        `when`(accountDataApi.updateAttendanceStatus(org.mockito.Mockito.eq(localAccountId), org.mockito.Mockito.eq(date), org.mockito.Mockito.anyString())).thenReturn(true)
+        `when`(accountDataApi.getAccountWithDetailsById(localAccountId)).thenReturn(mockAccount)
+        `when`(accountDataApi.addAttendance(anyObject())).thenReturn(true)
 
         val result = attendanceProvider.cancelUserAttendanceRequest(date)
 
@@ -207,19 +211,25 @@ class AttendanceProviderDefaultTest {
     }
 
     @Test
-    fun `FakerRequestAccountAttendanceStatusUpdate payload contains json structure with accountId date requestType businessType and status`() {
-        val request = FakerRequestAccountAttendanceStatusUpdate(
-            newStatus = AttendanceStatus.NONE,
-            accountId = 123L,
+    fun `FakeAttendanceUpdatesServerRequest payload contains json structure`() {
+        val attendance = Attendance(
+            serverAccountId = "123",
+            checkIn = 0L,
+            checkOut = 0L,
             date = 1500L,
-            requestUuid = "test-uuid"
+            attendanceStatus = AttendanceStatus.NONE
+        )
+        val request = FakeAttendanceUpdatesServerRequest(
+            requestUuid = "test-uuid",
+            updatedAttendance = attendance,
+            businessType = AttendanceBusinessType.ATTENDANCE_UPDATE
         )
         val payload = request.payload()
         assertTrue(payload.contains("\"requestUuid\":\"test-uuid\""))
-        assertTrue(payload.contains("\"accountId\":123"))
+        assertTrue(payload.contains("\"accountId\":\"123\""))
         assertTrue(payload.contains("\"date\":1500"))
         assertTrue(payload.contains("\"requestType\":\"attendance\""))
-        assertTrue(payload.contains("\"businessType\":\"cancel_attendance_request\""))
-        assertTrue(payload.contains("\"status\":\"none\""))
+        assertTrue(payload.contains("\"businessType\":\"attendance_update\""))
+        assertTrue(payload.contains("\"attendanceStatus\":\"none\""))
     }
 }
