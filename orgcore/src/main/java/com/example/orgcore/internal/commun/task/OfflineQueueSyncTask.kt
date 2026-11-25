@@ -116,7 +116,6 @@ internal class OfflineQueueSyncTask(
                     }
                 }
 
-                if (hasFailure) break
             }
 
             if (hasFailure) TaskResult.Retry() else TaskResult.Success

@@ -30,7 +30,7 @@ internal class AttendanceUpdatePayloadProcessor(
     }
 
     override suspend fun decode(json: JSONObject): AttendanceRequestConstraint {
-        return withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.IO) {
             LoggerHelper.logger.i(TAG, "$CLASS_NAME|decode|start decoding attendance update payload")
             val id = json.optString(KEY_ID, UUID.randomUUID().toString())
             val serverAccountId = json.optString(KEY_ACCOUNT_ID, "")
