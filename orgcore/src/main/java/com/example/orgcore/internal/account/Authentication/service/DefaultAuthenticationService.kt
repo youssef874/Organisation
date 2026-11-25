@@ -4,26 +4,25 @@ import com.example.orgcore.api.account.model.AccountUserType
 import com.example.orgcore.api.account.model.AuthenticationError
 import com.example.orgcore.api.account.model.AuthenticationErrorType
 import com.example.orgcore.api.model.Result
+import com.example.orgcore.api.model.ServerRequestErrorType
 import com.example.orgcore.internal.ServicesProvider
-import com.example.orgcore.internal.account.Authentication.AuthenticationRequestExecutionBuilderFactory
+import com.example.orgcore.internal.account.Authentication.model.LoginRequestConstrains
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.commun.LoggerHelper
-import com.example.orgcore.internal.commun.cache.OfflineQueueCache
+import com.example.orgcore.internal.commun.RequestExecutorProvider
 import com.example.orgcore.internal.commun.model.RequestResult
-import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal class DefaultAuthenticationService(
-    private val requestFactory: (String, String) -> ServerRequest<Account>,
     private val authenticationProvider: AuthenticationProvider,
     private val networkMonitor: NetworkMonitor = ServicesProvider.getNetworkMonitor(),
-    private val offlineQueueCache: OfflineQueueCache,
-    private val authBuilderFactory: AuthenticationRequestExecutionBuilderFactory = AuthenticationRequestExecutionBuilderFactory(
-        authenticationProvider
-    )
+    private val offlineRequestDataApi: OfflineRequestDataApi,
+   private val accountDataApi: AccountDataApi
 ) : AuthenticationService {
 
     companion object {
@@ -62,12 +61,23 @@ internal class DefaultAuthenticationService(
                 )
             }
 
-            val request = requestFactory(userName, psw)
-            val result = authBuilderFactory.createLogin(request)
-                .execute(networkMonitor, offlineQueueCache)
-
-            when (result) {
-                is RequestResult.Success -> Result.Success(result.data)
+            val constraint = LoginRequestConstrains(
+                username = userName,
+                password = psw
+            )
+            val loginExecutor = RequestExecutorProvider.getAppRequestExecutor(
+                networkMonitor = networkMonitor,
+                authenticationProvider = authenticationProvider,
+                offlineRequestDataApi = offlineRequestDataApi,
+                accountDataApi = accountDataApi
+            )
+            when (val result = loginExecutor.execute(constraint)) {
+                is RequestResult.Success -> (result.data as? Account)?.let { Result.Success(it) }?:Result.Error(
+                    error = AuthenticationError(
+                        errorCode = ServerRequestErrorType.UNKNOWN_ERROR,
+                        message = "missing account"
+                    )
+                )
                 is RequestResult.ServerFailure -> Result.Error(
                     error = AuthenticationError(
                         errorCode = result.errorCode,

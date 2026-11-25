@@ -4,6 +4,7 @@ import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgcore.internal.commun.model.RequestPriority
 import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.model.DBOfflineRequest
@@ -76,7 +77,7 @@ internal class RequestExecutionBuilder<T>(
             }
         } catch (e: Throwable) {
             LoggerHelper.logger.e(e, TAG, "$CLASS_NAME|execute| Exception thrown during request execution")
-            RequestResult.ServerFailure(-1)
+            RequestResult.ServerFailure(ServerRequestErrorType.UNKNOWN_ERROR)
         }
     }
 }

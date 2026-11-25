@@ -4,6 +4,7 @@ import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.FakeCache
 import com.example.orgcore.internal.commun.model.RequestPriority
 import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 import com.example.orgcore.internal.commun.request.ServerRequest
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -108,7 +109,7 @@ class RequestExecutionBuilderTest {
             .execute(fakeNetworkMonitor, fakeOfflineQueueCache)
 
         assertTrue(result is RequestResult.ServerFailure)
-        assertEquals(-1, (result as RequestResult.ServerFailure).errorCode)
+        assertEquals(ServerRequestErrorType.UNKNOWN_ERROR, (result as RequestResult.ServerFailure).errorCode)
     }
 
     @Test

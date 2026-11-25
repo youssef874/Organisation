@@ -26,6 +26,18 @@ internal fun Attendance.toDBAttendance(accountId: Long): DBAttendance {
     )
 }
 
+internal fun DBAttendance.toAttendance(serverAccountId: String): Attendance {
+    return Attendance(
+        serverAccountId = serverAccountId,
+        checkIn = checkIn,
+        checkOut = checkOut,
+        date = date,
+        attendanceStatus = attendanceStatus,
+        requestReason = requestReason,
+        isRequestInProgress = isRequestInProgress
+    )
+}
+
 /**
  * Maps a database [DBAttendance] model to a public API [OrgAttendance] model.
  */

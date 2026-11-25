@@ -15,8 +15,10 @@ import com.example.orgcore.internal.account.Authentication.provider.Authenticati
 import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
+import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
+import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
 import com.example.orgcore.internal.commun.LoggerHelper
-import com.example.orgcore.internal.commun.cache.OfflineQueueCache
+import com.example.orgcore.internal.commun.RequestExecutorProvider
 import com.example.orgcore.internal.commun.event.OrgEventListener
 import com.example.orgcore.internal.commun.event.OrgEventNotifier
 import com.example.orgcore.internal.commun.model.RequestResult
@@ -383,30 +385,33 @@ internal class AttendanceProviderDefault(
         val userAccountId = getAuthenticatedUserAccountId() ?: return false
         val serverId = authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
         if (serverId.isBlank()) return false
-        val state = AttendanceStatus.NONE
+        val state = AttendanceStatus.PENDING
         val dbAttendance = accountDataApi.getAttendanceByDate(
             accountId = userAccountId, date = date
+        )?:return false
+
+
+
+        val constraint = AttendanceRequestConstraint(
+            businessType = AttendanceBusinessType.ATTENDANCE_UPDATE,
+            attendance = dbAttendance,
+            serverAccountId = serverId
         )
 
-        val attendance = Attendance(
-            serverAccountId = serverId,
-            checkIn = dbAttendance?.checkIn ?: 0L,
-            checkOut = dbAttendance?.checkOut ?: 0L,
-            date = date,
-            attendanceStatus = state,
-            id = dbAttendance?.serverId ?: (-1).toString()
+        val appRequestExecutor = RequestExecutorProvider.getAppRequestExecutor(
+            networkMonitor = networkMonitor,
+            authenticationProvider = authenticationProvider,
+            offlineRequestDataApi = offlineRequestDataApi,
+            accountDataApi = accountDataApi
         )
 
-        val result = AttendanceRequestExecutionBuilderFactory(accountDataApi)
-            .create(attendance)
-            .execute(networkMonitor, OfflineQueueCache(offlineRequestDataApi))
-
-        return when (result) {
+        return when (val result = appRequestExecutor.execute(constraint)) {
             is RequestResult.Success -> {
+                val updatedAttendance = result.data as? Attendance
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateSuccess(
                         attendanceAccountId = userAccountId,
-                        newState = result.data.attendanceStatus
+                        newState = updatedAttendance?.attendanceStatus ?: state
                     )
                 )
                 true

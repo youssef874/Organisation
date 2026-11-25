@@ -12,7 +12,7 @@ internal class AppPayloadProcessor(
 ) : PayloadProcessor<Any> {
 
     companion object {
-        private const val KEY_REQUEST_TYPE = "requestType"
+        const val KEY_REQUEST_TYPE = "requestType"
     }
 
     private var activeProcessor: PayloadProcessor<*>? = null

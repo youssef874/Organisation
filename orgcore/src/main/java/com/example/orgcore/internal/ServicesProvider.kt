@@ -9,7 +9,6 @@ import com.example.orgcore.internal.account.AccountSettings
 import com.example.orgcore.internal.account.AccountSettingsImpl
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProviderDefault
-import com.example.orgcore.internal.account.Authentication.request.FakeAuthenticationRequest
 import com.example.orgcore.internal.account.Authentication.service.AuthenticationService
 import com.example.orgcore.internal.account.Authentication.service.DefaultAuthenticationService
 import com.example.orgcore.internal.account.service.AccountService
@@ -17,11 +16,11 @@ import com.example.orgcore.internal.account.service.AccountServiceImpl
 import com.example.orgcore.internal.attendance.AttendanceEventHandler
 import com.example.orgcore.internal.attendance.AttendanceProvider
 import com.example.orgcore.internal.attendance.AttendanceProviderDefault
-import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.commun.event.OrgEventListener
 import com.example.orgcore.internal.commun.event.OrgEventNotifier
 import com.example.orgcore.internal.network.ConnectivityManagerNetworkMonitor
 import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import com.youssefmkh.core.internal.commun.datastore.DataStoreFactory
 
@@ -40,11 +39,10 @@ internal object ServicesProvider {
 
     fun getAuthenticationService(context: Context): AuthenticationService =
         DefaultAuthenticationService(
-            requestFactory = { userName, psw ->
-                FakeAuthenticationRequest(getNetworkMonitor(), userName, psw)
-            },
             authenticationProvider = getAuthenticationProvider(context),
-            offlineQueueCache = OfflineQueueCache(OfflineRequestDataApi(context))
+            networkMonitor = getNetworkMonitor(),
+            offlineRequestDataApi = OfflineRequestDataApi(context),
+            accountDataApi = AccountDataApi(context)
         )
 
     fun accountService(context: Context): AccountService =

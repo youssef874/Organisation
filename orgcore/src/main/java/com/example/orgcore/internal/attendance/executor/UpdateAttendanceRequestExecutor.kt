@@ -1,0 +1,106 @@
+package com.example.orgcore.internal.attendance.executor
+
+import com.example.orgcore.api.attendance.model.AttendanceStatus
+import com.example.orgcore.api.model.NetworkResult
+import com.example.orgcore.internal.attendance.mapper.toAttendance
+import com.example.orgcore.internal.attendance.model.Attendance
+import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
+import com.example.orgcore.internal.commun.LoggerHelper
+import com.example.orgcore.internal.commun.cache.OfflineCache
+import com.example.orgcore.internal.commun.executor.RequestExecutor
+import com.example.orgcore.internal.commun.model.RequestResult
+import com.example.orgcore.internal.commun.model.ServerRequestErrorType
+import com.example.orgcore.internal.commun.request.ServerRequest
+import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.model.DBOfflineRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
+
+internal class UpdateAttendanceRequestExecutor(
+    private val networkMonitor: NetworkMonitor,
+    private val offlineCache: OfflineCache<DBOfflineRequest>,
+    private val serverRequest: (AttendanceRequestConstraint)->ServerRequest<Attendance>,
+    private val cache: (AttendanceRequestConstraint)->OfflineCache<Attendance>
+) : RequestExecutor<Attendance, AttendanceRequestConstraint> {
+
+    companion object {
+        private const val CLASS_NAME = "UpdateAttendanceRequestExecutor"
+        private const val TAG = "ATTENDANCE"
+    }
+
+    override suspend fun execute(constraint: AttendanceRequestConstraint): RequestResult<Attendance> {
+        LoggerHelper.logger.i(
+            TAG,
+            "$CLASS_NAME|execute|constraint: $constraint"
+        )
+        val request = serverRequest(constraint)
+        val updateAttendanceHandler = cache(constraint)
+        return withContext(Dispatchers.IO){
+            require(constraint.attendance.accountId > 0L) { "Invalid or missing accountId: ${constraint.attendance.accountId}" }
+            require(constraint.attendance.date > 0L) { "Invalid or missing date: ${constraint.attendance.date}" }
+            if (!networkMonitor.isConnected()){
+                LoggerHelper.logger.w(TAG, "$CLASS_NAME|execute|network disconnected, offline queueing request")
+                val uuid = UUID.randomUUID().toString()
+                request.setRequestUuid(uuid)
+                val dbRequest = DBOfflineRequest(
+                    requestUuid = uuid,
+                    priority = constraint.priority,
+                    requestType = constraint.requestType,
+                    payloadJson = request.payload(),
+                    createdAt = System.currentTimeMillis()
+                )
+                try {
+                    val cached = offlineCache.cache(dbRequest)
+                    if (cached){
+                        LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|offline request successfully queued, updating local cache")
+                        updateAttendanceHandler.cache(
+                            constraint.attendance.toAttendance(constraint.serverAccountId)
+                                .copy(attendanceStatus = AttendanceStatus.PENDING)
+                        )
+                        RequestResult.OfflineQueued
+                    }else{
+                        LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|failed to cache offline request")
+                        RequestResult.CacheFailure
+                    }
+                } catch (e: Throwable) {
+                    LoggerHelper.logger.e(e, TAG, "$CLASS_NAME|execute|exception thrown during offline caching")
+                    RequestResult.CacheFailure
+                }
+            }else{
+                LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|network connected, executing server request")
+                val networkResult = try {
+                    request.request()
+                } catch (e: Throwable) {
+                    LoggerHelper.logger.e(e, TAG, "$CLASS_NAME|execute|exception thrown during server request")
+                    return@withContext RequestResult.ServerFailure(ServerRequestErrorType.UNKNOWN_ERROR)
+                }
+
+                when(networkResult){
+                    is NetworkResult.Success->{
+                        LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|server request succeeded, updating cache")
+                        try {
+                            val cacheResult = updateAttendanceHandler.cache(
+                                networkResult.data.copy(attendanceStatus = AttendanceStatus.PENDING)
+                            )
+                            if (cacheResult) {
+                                LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|cache update succeeded")
+                                RequestResult.Success(networkResult.data.copy(attendanceStatus = AttendanceStatus.PENDING))
+                            } else {
+                                LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|cache update failed")
+                                RequestResult.CacheFailure
+                            }
+                        } catch (e: Throwable) {
+                            LoggerHelper.logger.e(e, TAG, "$CLASS_NAME|execute|exception thrown during local cache update")
+                            RequestResult.CacheFailure
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|server request failed with error code: ${networkResult.code}")
+                        RequestResult.ServerFailure(networkResult.code)
+                    }
+                }
+            }
+        }
+    }
+}
