@@ -1,14 +1,11 @@
 package com.example.orgcore.internal.commun.task
 
 import com.example.orgcore.internal.commun.LoggerHelper
-import com.example.orgcore.internal.commun.RequestExecutionBuilder
-import com.example.orgcore.internal.commun.cache.OfflineCache
-import com.example.orgcore.internal.commun.cache.OfflineQueueCache
+import com.example.orgcore.internal.commun.executor.RequestExecutor
+import com.example.orgcore.internal.commun.model.RequestConstraint
 import com.example.orgcore.internal.commun.model.RequestResult
 import com.example.orgcore.internal.commun.model.ServerErrorUtil
 import com.example.orgcore.internal.commun.processor.PayloadProcessor
-import com.example.orgcore.internal.commun.request.ServerRequest
-import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import com.example.orgdatabase.public.model.DBOfflineRequest
 import org.json.JSONObject
@@ -20,8 +17,8 @@ import org.json.JSONObject
 internal class OfflineQueueSyncTask(
     override val id: String = ID,
     private val offlineRequestDataApi: OfflineRequestDataApi,
-    private val networkMonitor: NetworkMonitor,
-    private val processorFactory: () -> PayloadProcessor<*>
+    private val processorFactory: () -> PayloadProcessor<RequestConstraint>,
+    private val requestExecutor: ()->RequestExecutor<Any, RequestConstraint>
 ) : Task {
 
     companion object {
@@ -63,17 +60,10 @@ internal class OfflineQueueSyncTask(
 
                     try {
                         val json = JSONObject(requestRecord.payloadJson)
-                        appProcessor.decode(json)
+                        val constraint = appProcessor.decode(json)
 
-                        @Suppress("UNCHECKED_CAST")
-                        val serverRequest = appProcessor.getServerRequest() as ServerRequest<Any>
-                        @Suppress("UNCHECKED_CAST")
-                        val cache = appProcessor.getCache() as OfflineCache<Any>?
 
-                        val result = RequestExecutionBuilder(serverRequest)
-                            .cache(cache)
-                            .allowOfflineQueue(false)
-                            .execute(networkMonitor, OfflineQueueCache(offlineRequestDataApi))
+                        val result = requestExecutor().execute(constraint)
 
                         LoggerHelper.logger.d(
                             TAG,

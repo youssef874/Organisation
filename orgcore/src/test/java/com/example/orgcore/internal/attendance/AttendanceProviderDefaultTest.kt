@@ -13,6 +13,7 @@ import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.api.OfflineRequestDataApi
 import com.example.orgdatabase.public.model.DBAccount
+import com.example.orgdatabase.public.model.DBAttendance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -199,6 +200,15 @@ class AttendanceProviderDefaultTest {
         fakeAuthProvider.authenticatedUserServerIdDataStoreItemProvider.updateData(serverId)
         `when`(accountDataApi.getAccountByServerId(serverId)).thenReturn(mockAccount)
         `when`(networkMonitor.isConnected()).thenReturn(true)
+        val mockAttendance = DBAttendance(
+            accountId = localAccountId,
+            serverId = "att_1",
+            date = date,
+            checkIn = 0L,
+            checkOut = 0L,
+            attendanceStatus = AttendanceStatus.PRESENT
+        )
+        `when`(accountDataApi.getAttendanceByDate(localAccountId, date)).thenReturn(mockAttendance)
         `when`(accountDataApi.getAccountWithDetailsById(localAccountId)).thenReturn(mockAccount)
         `when`(accountDataApi.addAttendance(anyObject())).thenReturn(true)
 
@@ -207,7 +217,7 @@ class AttendanceProviderDefaultTest {
         assertTrue(result)
         val event = fakeEventNotifier.lastEvent as? AttendanceStatusUpdateSuccess
         assertEquals(localAccountId, event?.attendanceAccountId)
-        assertEquals(AttendanceStatus.NONE, event?.newState)
+        assertEquals(AttendanceStatus.PENDING, event?.newState)
     }
 
     @Test

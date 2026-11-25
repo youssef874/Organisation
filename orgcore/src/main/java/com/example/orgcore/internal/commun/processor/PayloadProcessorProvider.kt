@@ -1,8 +1,8 @@
 package com.example.orgcore.internal.commun.processor
 
-import com.example.orgcore.internal.attendance.model.Attendance
-import com.example.orgcore.internal.attendance.processor.AttendancePayloadProcessor
+import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
 import com.example.orgcore.internal.attendance.processor.AttendanceUpdatePayloadProcessor
+import com.example.orgcore.internal.commun.model.RequestConstraint
 import com.example.orgdatabase.public.api.AccountDataApi
 
 /**
@@ -13,25 +13,16 @@ internal object PayloadProcessorProvider {
     /**
      * Provides an instance of [AttendanceUpdatePayloadProcessor] for attendance status/cancellation updates.
      */
-    fun getAttendanceUpdatePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<Attendance> {
+    fun getAttendanceUpdatePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<AttendanceRequestConstraint> {
         return AttendanceUpdatePayloadProcessor(accountDataApi)
-    }
-
-    /**
-     * Provides an instance of [AttendancePayloadProcessor] wired with attendance child processors.
-     */
-    fun getAttendancePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<*> {
-        return AttendancePayloadProcessor(
-            getAttendanceUpdatePayloadProcessor(accountDataApi)
-        )
     }
 
     /**
      * Provides the root [AppPayloadProcessor] instance wired with all domain payload processors.
      */
-    fun getAppPayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<*> {
+    fun getAppPayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<RequestConstraint> {
         return AppPayloadProcessor(
-            getAttendancePayloadProcessor(accountDataApi)
+            getAttendanceUpdatePayloadProcessor(accountDataApi)
         )
     }
 }

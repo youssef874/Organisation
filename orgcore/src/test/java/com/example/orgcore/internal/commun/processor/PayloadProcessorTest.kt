@@ -2,25 +2,20 @@ package com.example.orgcore.internal.commun.processor
 
 import android.content.Context
 import com.example.orgcore.api.attendance.model.AttendanceStatus
-import com.example.orgcore.internal.attendance.cache.AttendanceUpdateCache
-import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
-import com.example.orgcore.internal.attendance.processor.AttendancePayloadProcessor
 import com.example.orgcore.internal.attendance.processor.AttendanceUpdatePayloadProcessor
-import com.example.orgcore.internal.attendance.request.FakeAttendanceUpdatesServerRequest
-import com.example.orgcore.internal.commun.cache.OfflineCache
-import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.model.DBAccount
 import com.example.orgdatabase.public.model.OfflineRequestType
 import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -34,7 +29,6 @@ class PayloadProcessorTest {
     private lateinit var accountDataApi: AccountDataApi
 
     private lateinit var updateStateProcessor: AttendanceUpdatePayloadProcessor
-    private lateinit var attendanceProcessor: AttendancePayloadProcessor
     private lateinit var appProcessor: AppPayloadProcessor
 
     @Before
@@ -42,12 +36,20 @@ class PayloadProcessorTest {
         MockitoAnnotations.openMocks(this)
         context = RuntimeEnvironment.getApplication().applicationContext
         updateStateProcessor = AttendanceUpdatePayloadProcessor(accountDataApi)
-        attendanceProcessor = AttendancePayloadProcessor(updateStateProcessor)
-        appProcessor = AppPayloadProcessor(attendanceProcessor)
+        appProcessor = AppPayloadProcessor(updateStateProcessor)
     }
 
     @Test
     fun `AttendanceUpdatePayloadProcessor decodes payload correctly`() = runTest {
+        val mockAccount = DBAccount(
+            id = 1L,
+            name = "Test User",
+            isUser = true,
+            accountType = 2,
+            serverId = "acc-456"
+        )
+        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(mockAccount)
+
         val json = JSONObject().apply {
             put("requestUuid", "uuid-123")
             put("id", "att-1")
@@ -58,15 +60,10 @@ class PayloadProcessorTest {
             put("attendanceStatus", AttendanceStatus.PRESENT)
         }
 
-        updateStateProcessor.decode(json)
-
-        val request = updateStateProcessor.getServerRequest()
-        assertNotNull(request)
-        assertTrue(request is FakeAttendanceUpdatesServerRequest)
-
-        val cache = updateStateProcessor.getCache()
-        assertNotNull(cache)
-        assertTrue(cache is AttendanceUpdateCache)
+        val constraint = updateStateProcessor.decode(json)
+        assertNotNull(constraint)
+        assertEquals(AttendanceBusinessType.ATTENDANCE_UPDATE, constraint.businessType)
+        assertEquals("acc-456", constraint.serverAccountId)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -78,70 +75,32 @@ class PayloadProcessorTest {
         updateStateProcessor.decode(json)
     }
 
-    @Test
-    fun `AttendancePayloadProcessor routes attendance update request correctly`() = runTest {
-        var decodeInvoked = false
-        var getServerRequestInvoked = false
-        var getCacheInvoked = false
-
-        val fakeUpdateStateProcessor = object : PayloadProcessor<Attendance> {
-            override suspend fun decode(json: JSONObject) {
-                decodeInvoked = true
-            }
-            override fun getServerRequest(): ServerRequest<Attendance> {
-                getServerRequestInvoked = true
-                return mock(ServerRequest::class.java) as ServerRequest<Attendance>
-            }
-            override fun getCache(): OfflineCache<Attendance>? {
-                getCacheInvoked = true
-                return mock(OfflineCache::class.java) as OfflineCache<Attendance>
-            }
-        }
-
-        val processorWithFake = AttendancePayloadProcessor(fakeUpdateStateProcessor)
-
+    @Test(expected = IllegalArgumentException::class)
+    fun `AttendanceUpdatePayloadProcessor throws exception when account not found`() = runTest {
         val json = JSONObject().apply {
             put("requestUuid", "uuid-123")
+            put("id", "att-1")
             put("accountId", "acc-456")
+            put("checkIn", 1000L)
+            put("checkOut", 2000L)
             put("date", 1000L)
-            put("businessType", AttendanceBusinessType.ATTENDANCE_UPDATE)
             put("attendanceStatus", AttendanceStatus.PRESENT)
         }
+        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(null)
 
-        processorWithFake.decode(json)
-        assertTrue(decodeInvoked)
-
-        val request = processorWithFake.getServerRequest()
-        assertNotNull(request)
-        assertTrue(getServerRequestInvoked)
-
-        val cache = processorWithFake.getCache()
-        assertNotNull(cache)
-        assertTrue(getCacheInvoked)
+        updateStateProcessor.decode(json)
     }
 
     @Test
     fun `AppPayloadProcessor routes attendance request correctly`() = runTest {
-        var decodeInvoked = false
-        var getServerRequestInvoked = false
-        var getCacheInvoked = false
-
-        @Suppress("UNCHECKED_CAST")
-        val fakeAttendanceProcessor = object : PayloadProcessor<Any> {
-            override suspend fun decode(json: JSONObject) {
-                decodeInvoked = true
-            }
-            override fun getServerRequest(): ServerRequest<Any> {
-                getServerRequestInvoked = true
-                return mock(ServerRequest::class.java) as ServerRequest<Any>
-            }
-            override fun getCache(): OfflineCache<Any>? {
-                getCacheInvoked = true
-                return mock(OfflineCache::class.java) as OfflineCache<Any>
-            }
-        }
-
-        val appProcessorWithFake = AppPayloadProcessor(fakeAttendanceProcessor)
+        val mockAccount = DBAccount(
+            id = 1L,
+            name = "Test User",
+            isUser = true,
+            accountType = 2,
+            serverId = "acc-456"
+        )
+        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(mockAccount)
 
         val json = JSONObject().apply {
             put("requestUuid", "uuid-123")
@@ -152,40 +111,9 @@ class PayloadProcessorTest {
             put("attendanceStatus", AttendanceStatus.PRESENT)
         }
 
-        appProcessorWithFake.decode(json)
-        assertTrue(decodeInvoked)
-
-        val request = appProcessorWithFake.getServerRequest()
-        assertNotNull(request)
-        assertTrue(getServerRequestInvoked)
-
-        val cache = appProcessorWithFake.getCache()
-        assertNotNull(cache)
-        assertTrue(getCacheInvoked)
-    }
-
-    @Test
-    fun `Integration test full B-tree routing chain from App to Leaf`() = runTest {
-        val rawPayload = """
-            {
-                "requestUuid": "integration-uuid-999",
-                "id": "att-999",
-                "accountId": "acc-789",
-                "date": 50000,
-                "requestType": "attendance",
-                "businessType": "attendance_update",
-                "attendanceStatus": "present"
-            }
-        """.trimIndent()
-
-        // Decode using root AppProcessor with parsed JSONObject
-        appProcessor.decode(JSONObject(rawPayload))
-
-        val request = appProcessor.getServerRequest()
-        val cache = appProcessor.getCache()
-
-        assertNotNull(request)
-        assertNotNull(cache)
+        val constraint = appProcessor.decode(json)
+        assertNotNull(constraint)
+        assertEquals(AttendanceBusinessType.ATTENDANCE_UPDATE, constraint.businessType)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -195,6 +123,5 @@ class PayloadProcessorTest {
         }
 
         appProcessor.decode(json)
-        appProcessor.getServerRequest()
     }
 }
