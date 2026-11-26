@@ -39,7 +39,6 @@ internal class FakeAttendanceUpdatesServerRequest(
                 "\"accountId\":\"${updatedAttendance.serverAccountId}\",\"checkIn\":${updatedAttendance.checkIn}," +
                 "\"checkOut\":${updatedAttendance.checkOut},\"date\":${updatedAttendance.date}," +
                 "\"attendanceStatus\":\"${updatedAttendance.attendanceStatus}\"," +
-                "\"requestReason\":${updatedAttendance.requestReason?.let { "\"$it\"" } ?: "null"}," +
-                "\"isRequestInProgress\":${updatedAttendance.isRequestInProgress}}"
+                "\"requestReason\":${updatedAttendance.requestReason?.let { "\"$it\"" } ?: "null"}}"
     }
 }

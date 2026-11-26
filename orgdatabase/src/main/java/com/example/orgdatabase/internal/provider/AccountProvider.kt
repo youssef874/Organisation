@@ -123,6 +123,15 @@ internal interface AccountProvider {
     suspend fun getAttendanceByDate(accountId: Long, date: Long): DBAttendance?
 
     /**
+     * Retrieves the attendance record for a specific account (identified by its server ID) on a given date.
+     *
+     * @param date The timestamp/epoch date.
+     * @param accountServerId The server ID of the account.
+     * @return The [DBAttendance] record if found, or `null` otherwise.
+     */
+    suspend fun getAttendanceByDateAndAccountServerId(date: Long, accountServerId: String): DBAttendance?
+
+    /**
      * Observes the attendance record for a specific account on a given date.
      *
      * @param accountId The ID of the account.

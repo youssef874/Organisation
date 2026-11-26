@@ -217,6 +217,16 @@ internal class AccountProviderImpl(
         return attendanceDao.getAttendanceByAccountAndDate(accountId, date)?.toDBAttendance()
     }
 
+    override suspend fun getAttendanceByDateAndAccountServerId(date: Long, accountServerId: String): DBAttendance? {
+        return try {
+            val account = getAccountByServerId(accountServerId) ?: return null
+            getAttendanceByDate(account.id, date)
+        } catch (e: Exception) {
+            LoggerHelper.logger.e(TAG, "$CLASS_NAME getAttendanceByDateAndAccountServerId exception: ${e.message}")
+            null
+        }
+    }
+
     override fun observeAttendanceByDate(accountId: Long, date: Long): Flow<DBAttendance?> {
         return attendanceDao.observeAttendanceByAccountAndDate(accountId, date).map { it?.toDBAttendance() }
     }
