@@ -6,5 +6,9 @@ data class OrgAttendance(
     val checkOut: Long,
     val checkIn: Long,
     val attendanceStatus: @AttendanceStatus String,
-    val accountId: Long
+    val accountId: Long,
+    /**
+     * True if the request was handled successfully by the server but the supervisor has not accepted or rejected yet or queued, otherwise false.
+     */
+    val isRequestInProgress: Boolean = false
 )

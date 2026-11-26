@@ -171,15 +171,17 @@ internal class OrganisationDaoTest {
                 checkIn = 100L,
                 checkOut = 200L,
                 date = targetDate,
-                attendanceStatus = AttendanceEntity.STATUS_ABSENT
+                attendanceStatus = AttendanceEntity.STATUS_ABSENT,
+                isRequestInProgress = false
             )
         )
 
-        val updatedRows = attendanceDao.updateAttendanceStatus(accountId, targetDate, AttendanceEntity.STATUS_PRESENT)
+        val updatedRows = attendanceDao.updateAttendanceStatus(accountId, targetDate, AttendanceEntity.STATUS_PRESENT, true)
         assertEquals(1, updatedRows)
 
         val record = attendanceDao.getAttendanceByAccountAndDate(accountId, targetDate)
         assertEquals(AttendanceEntity.STATUS_PRESENT, record?.attendanceStatus)
+        assertEquals(true, record?.isRequestInProgress)
     }
 
     @Test

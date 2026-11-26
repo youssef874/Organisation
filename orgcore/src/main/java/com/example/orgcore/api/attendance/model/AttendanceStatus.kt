@@ -1,6 +1,7 @@
 package com.example.orgcore.api.attendance.model
 
 import androidx.annotation.StringDef
+import com.example.orgdatabase.public.model.AttendanceStatusType
 
 @StringDef(
     AttendanceStatus.ABSENT,
@@ -19,17 +20,17 @@ import androidx.annotation.StringDef
 @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER)
 annotation class AttendanceStatus {
     companion object {
-        const val ABSENT = "absent"
-        const val PRESENT = "present"
-        const val IN_PROGRESS = "in_progress"
-        const val PENDING = "pending"
-        const val HOLIDAY = "holiday"
-        const val PERSONAL_HOLIDAY = "personal holiday"
-        const val WEEKEND = "weekend"
-        const val PAID_LEAVE = "paid leave"
-        const val UNPAID_LEAVE = "unpaid leave"
-        const val PAID_PARTIAL_LEAVE = "paid partial leave"
-        const val UNPAID_PARTIAL_LEAVE = "unpaid_partial_leave"
-        const val NONE = "none"
+        const val ABSENT = AttendanceStatusType.ABSENT
+        const val PRESENT = AttendanceStatusType.PRESENT
+        const val IN_PROGRESS = AttendanceStatusType.IN_PROGRESS
+        const val PENDING = AttendanceStatusType.PENDING
+        const val HOLIDAY = AttendanceStatusType.HOLIDAY
+        const val PERSONAL_HOLIDAY = AttendanceStatusType.PERSONAL_HOLIDAY
+        const val WEEKEND = AttendanceStatusType.WEEKEND
+        const val PAID_LEAVE = AttendanceStatusType.PAID_LEAVE
+        const val UNPAID_LEAVE = AttendanceStatusType.UNPAID_LEAVE
+        const val PAID_PARTIAL_LEAVE = AttendanceStatusType.PAID_PARTIAL_LEAVE
+        const val UNPAID_PARTIAL_LEAVE = AttendanceStatusType.UNPAID_PARTIAL_LEAVE
+        const val NONE = AttendanceStatusType.NONE
     }
 }

@@ -195,10 +195,10 @@ internal class AccountProviderImpl(
         }
     }
 
-    override suspend fun updateAttendanceStatus(accountId: Long, date: Long, status: String): Boolean {
-        LoggerHelper.logger.d(TAG, "$CLASS_NAME updateAttendanceStatus id: $accountId, date: $date, status: $status")
+    override suspend fun updateAttendanceStatus(accountId: Long, date: Long, status: String, isRequestInProgress: Boolean): Boolean {
+        LoggerHelper.logger.d(TAG, "$CLASS_NAME updateAttendanceStatus id: $accountId, date: $date, status: $status, isRequestInProgress: $isRequestInProgress")
         return try {
-            attendanceDao.updateAttendanceStatus(accountId, date, status) > 0
+            attendanceDao.updateAttendanceStatus(accountId, date, status, isRequestInProgress) > 0
         } catch (e: Exception) {
             LoggerHelper.logger.e(TAG, "$CLASS_NAME updateAttendanceStatus exception: ${e.message}")
             false
