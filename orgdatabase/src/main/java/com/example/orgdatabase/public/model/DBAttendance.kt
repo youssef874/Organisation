@@ -21,7 +21,6 @@ data class DBAttendance(
     AttendanceStatusType.ABSENT,
     AttendanceStatusType.PRESENT,
     AttendanceStatusType.IN_PROGRESS,
-    AttendanceStatusType.PENDING,
     AttendanceStatusType.HOLIDAY,
     AttendanceStatusType.PERSONAL_HOLIDAY,
     AttendanceStatusType.WEEKEND,
@@ -37,7 +36,6 @@ annotation class AttendanceStatusType {
         const val ABSENT = "absent"
         const val PRESENT = "present"
         const val IN_PROGRESS = "in progress"
-        const val PENDING = "pending"
         const val HOLIDAY = "holiday"
         const val PERSONAL_HOLIDAY = "personal holiday"
         const val WEEKEND = "weekend"

@@ -61,6 +61,7 @@ class DefaultAttendanceRepository(
     }
 
     override suspend fun cancelDayOffRequest(day: LocalDate) {
-        // TODO
+        val dayMillis = day.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        AttendanceApi.cancelUserAttendanceRequest(dayMillis)
     }
 }

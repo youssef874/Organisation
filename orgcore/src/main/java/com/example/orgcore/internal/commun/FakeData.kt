@@ -115,8 +115,8 @@ sealed class FakeData {
                     serverAccountId = "3",
                     checkIn = 0L,
                     checkOut = 0L,
-                    date = dateToMillis(2026, 11, 18),
-                    attendanceStatus = AttendanceStatus.PENDING
+                    date = dateToMillis(2026, 12, 18),
+                    attendanceStatus = AttendanceStatus.PAID_LEAVE
                 )
             )
     }
