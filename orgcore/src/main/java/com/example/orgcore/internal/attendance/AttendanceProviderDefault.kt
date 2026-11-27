@@ -4,9 +4,8 @@ import android.content.Context
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.orgcore.api.attendance.event.AttendanceRequestFailReason
-import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateFailed
-import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateOfflineQueued
-import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
+import com.example.orgcore.api.attendance.event.CancelAttendanceDenied
+import com.example.orgcore.api.attendance.event.CancelAttendanceRequestTaken
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.attendance.model.OrgAttendance
 import com.example.orgcore.api.model.OrgEvent
@@ -14,7 +13,6 @@ import com.example.orgcore.internal.ServicesProvider
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
-import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.RequestExecutorProvider
@@ -403,13 +401,11 @@ internal class AttendanceProviderDefault(
         )
 
         return when (val result = appRequestExecutor.execute(constraint)) {
-            //TODO refactor events
             is RequestResult.Success -> {
-                val updatedAttendance = result.data as? Attendance
                 attendanceEventNotifier.notify(
-                    AttendanceStatusUpdateSuccess(
+                    CancelAttendanceRequestTaken(
                         attendanceAccountId = userAccountId,
-                        newState = updatedAttendance?.attendanceStatus ?: AttendanceStatus.NONE
+                        day = date
                     )
                 )
                 true
@@ -417,9 +413,9 @@ internal class AttendanceProviderDefault(
 
             is RequestResult.OfflineQueued -> {
                 attendanceEventNotifier.notify(
-                    AttendanceStatusUpdateOfflineQueued(
+                    CancelAttendanceRequestTaken(
                         attendanceAccountId = userAccountId,
-                        state = dbAttendance.attendanceStatus
+                        day = date
                     )
                 )
                 true
@@ -427,9 +423,9 @@ internal class AttendanceProviderDefault(
 
             is RequestResult.ServerFailure -> {
                 attendanceEventNotifier.notify(
-                    AttendanceStatusUpdateFailed(
+                    CancelAttendanceDenied(
                         attendanceAccountId = userAccountId,
-                        state = dbAttendance.attendanceStatus,
+                        day = date,
                         failReason = result.errorCode.toAttendanceFailReason()
                     )
                 )
@@ -438,9 +434,9 @@ internal class AttendanceProviderDefault(
 
             is RequestResult.ConnectionLost -> {
                 attendanceEventNotifier.notify(
-                    AttendanceStatusUpdateFailed(
+                    CancelAttendanceDenied(
                         attendanceAccountId = userAccountId,
-                        state = dbAttendance.attendanceStatus,
+                        day = date,
                         failReason = AttendanceRequestFailReason.NO_CONNECTION
                     )
                 )
@@ -449,9 +445,9 @@ internal class AttendanceProviderDefault(
 
             is RequestResult.CacheFailure -> {
                 attendanceEventNotifier.notify(
-                    AttendanceStatusUpdateFailed(
+                    CancelAttendanceDenied(
                         attendanceAccountId = userAccountId,
-                        state = dbAttendance.attendanceStatus,
+                        day = date,
                         failReason = AttendanceRequestFailReason.DATABASE_ERROR
                     )
                 )

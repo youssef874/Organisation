@@ -1,7 +1,7 @@
 package com.example.orgcore.internal.attendance
 
 import android.content.Context
-import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
+import com.example.orgcore.api.attendance.event.CancelAttendanceRequestTaken
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.commun.anyObject
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
@@ -218,9 +218,9 @@ class AttendanceProviderDefaultTest {
         val result = attendanceProvider.cancelUserAttendanceRequest(date)
 
         assertTrue(result)
-        val event = fakeEventNotifier.lastEvent as? AttendanceStatusUpdateSuccess
+        val event = fakeEventNotifier.lastEvent as? CancelAttendanceRequestTaken
         assertEquals(localAccountId, event?.attendanceAccountId)
-        assertEquals(AttendanceStatus.PRESENT, event?.newState)
+        assertEquals(date, event?.day)
     }
 
     @Test
