@@ -1,7 +1,8 @@
 package com.example.orgcore.internal.commun.executor
 
 import com.example.orgcore.internal.account.Authentication.model.AuthenticationRequestConstraint
-import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
+import com.example.orgcore.internal.attendance.model.Attendance
+import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.model.RequestConstraint
 import com.example.orgcore.internal.commun.model.RequestResult
@@ -9,7 +10,7 @@ import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 
 internal class AppRequestExecutor(
     private val authentificationRequestExecutor: (AuthenticationRequestConstraint) -> RequestExecutor<Any, AuthenticationRequestConstraint>,
-    private val attendanceRequestExecutor: (AttendanceRequestConstraint)-> RequestExecutor<Any, AttendanceRequestConstraint>
+    private val attendanceRequestExecutor: (AttendanceRequestConstraints) -> RequestExecutor<Attendance, AttendanceRequestConstraints>
 ): RequestExecutor<Any, RequestConstraint> {
 
     companion object {
@@ -27,7 +28,7 @@ internal class AppRequestExecutor(
                 LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|routing to authentication executor")
                 authentificationRequestExecutor(constraint).execute(constraint)
             }
-            is AttendanceRequestConstraint -> {
+            is AttendanceRequestConstraints -> {
                 LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|routing to attendance executor")
                 attendanceRequestExecutor(constraint).execute(constraint)
             }

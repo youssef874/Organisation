@@ -1,10 +1,9 @@
 package com.example.orgcore.internal.attendance.executor
 
-import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.attendance.mapper.toAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
-import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
+import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.cache.OfflineCache
 import com.example.orgcore.internal.commun.executor.RequestExecutor
@@ -12,33 +11,36 @@ import com.example.orgcore.internal.commun.model.RequestResult
 import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
+import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.model.DBOfflineRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-internal class UpdateAttendanceRequestExecutor(
+internal class CancelAttendanceRequestExecutor(
     private val networkMonitor: NetworkMonitor,
+    private val accountDataApi: AccountDataApi,
     private val offlineCache: OfflineCache<DBOfflineRequest>,
-    private val serverRequest: (AttendanceRequestConstraint)->ServerRequest<Attendance>,
-    private val cache: (AttendanceRequestConstraint)->OfflineCache<Attendance>
-) : RequestExecutor<Attendance, AttendanceRequestConstraint> {
+    private val serverRequest: (CancelAttendanceRequestConstraints)->ServerRequest<Attendance>,
+    private val cache: (CancelAttendanceRequestConstraints)->OfflineCache<Attendance>
+): RequestExecutor<Attendance, CancelAttendanceRequestConstraints> {
 
     companion object {
-        private const val CLASS_NAME = "UpdateAttendanceRequestExecutor"
+        private const val CLASS_NAME = "CancelAttendanceRequestExecutor"
         private const val TAG = "ATTENDANCE"
     }
 
-    override suspend fun execute(constraint: AttendanceRequestConstraint): RequestResult<Attendance> {
+    override suspend fun execute(constraint: CancelAttendanceRequestConstraints): RequestResult<Attendance> {
         LoggerHelper.logger.i(
             TAG,
             "$CLASS_NAME|execute|constraint: $constraint"
         )
         val request = serverRequest(constraint)
-        val updateAttendanceHandler = cache(constraint)
+        val cancelAttendanceHandler = cache(constraint)
         return withContext(Dispatchers.IO){
-            require(constraint.attendance.accountId > 0L) { "Invalid or missing accountId: ${constraint.attendance.accountId}" }
-            require(constraint.attendance.date > 0L) { "Invalid or missing date: ${constraint.attendance.date}" }
+            require(constraint.date > 0L) { "Invalid or missing date: ${constraint.date}" }
+            require(constraint.accountId.isNotBlank()) { "Invalid or missing accountId: ${constraint.accountId}" }
+
             if (!networkMonitor.isConnected()){
                 LoggerHelper.logger.w(TAG, "$CLASS_NAME|execute|network disconnected, offline queueing request")
                 val uuid = UUID.randomUUID().toString()
@@ -54,9 +56,13 @@ internal class UpdateAttendanceRequestExecutor(
                     val cached = offlineCache.cache(dbRequest)
                     if (cached){
                         LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|offline request successfully queued, updating local cache")
-                        updateAttendanceHandler.cache(
-                            constraint.attendance.toAttendance(constraint.serverAccountId)
-                                .copy(attendanceStatus = AttendanceStatus.PENDING)
+                        val attendance = accountDataApi
+                            .getAttendanceByDateAndAccountServerId(date = constraint.date, accountServerId = constraint.serverAccountId)
+                            ?: return@withContext RequestResult.CacheFailure
+                        cancelAttendanceHandler.cache(
+                            attendance.toAttendance(
+                                constraint.serverAccountId
+                            )
                         )
                         RequestResult.OfflineQueued
                     }else{
@@ -80,12 +86,10 @@ internal class UpdateAttendanceRequestExecutor(
                     is NetworkResult.Success->{
                         LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|server request succeeded, updating cache")
                         try {
-                            val cacheResult = updateAttendanceHandler.cache(
-                                networkResult.data.copy(attendanceStatus = AttendanceStatus.PENDING)
-                            )
+                            val cacheResult = cancelAttendanceHandler.cache(networkResult.data)
                             if (cacheResult) {
                                 LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|cache update succeeded")
-                                RequestResult.Success(networkResult.data.copy(attendanceStatus = AttendanceStatus.PENDING))
+                                RequestResult.Success(networkResult.data)
                             } else {
                                 LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|cache update failed")
                                 RequestResult.CacheFailure

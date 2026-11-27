@@ -1,11 +1,9 @@
 package com.example.orgcore.internal.commun.processor
 
 import android.content.Context
-import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
-import com.example.orgcore.internal.attendance.processor.AttendanceUpdatePayloadProcessor
-import com.example.orgdatabase.public.api.AccountDataApi
-import com.example.orgdatabase.public.model.DBAccount
+import com.example.orgcore.internal.attendance.processor.AttendancePayloadProcessor
+import com.example.orgcore.internal.attendance.processor.CancelAttendanceRequestPayloadProcessor
 import com.example.orgdatabase.public.model.OfflineRequestType
 import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
@@ -14,9 +12,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
@@ -24,96 +19,62 @@ import org.robolectric.RuntimeEnvironment
 class PayloadProcessorTest {
 
     private lateinit var context: Context
-
-    @Mock
-    private lateinit var accountDataApi: AccountDataApi
-
-    private lateinit var updateStateProcessor: AttendanceUpdatePayloadProcessor
+    private lateinit var cancelProcessor: CancelAttendanceRequestPayloadProcessor
+    private lateinit var attendanceProcessor: AttendancePayloadProcessor
     private lateinit var appProcessor: AppPayloadProcessor
 
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
         context = RuntimeEnvironment.getApplication().applicationContext
-        updateStateProcessor = AttendanceUpdatePayloadProcessor(accountDataApi)
-        appProcessor = AppPayloadProcessor(updateStateProcessor)
+        cancelProcessor = CancelAttendanceRequestPayloadProcessor()
+        attendanceProcessor = AttendancePayloadProcessor { cancelProcessor }
+        appProcessor = AppPayloadProcessor { attendanceProcessor }
     }
 
     @Test
-    fun `AttendanceUpdatePayloadProcessor decodes payload correctly`() = runTest {
-        val mockAccount = DBAccount(
-            id = 1L,
-            name = "Test User",
-            isUser = true,
-            accountType = 2,
-            serverId = "acc-456"
-        )
-        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(mockAccount)
-
+    fun `CancelAttendanceRequestPayloadProcessor decodes payload correctly`() = runTest {
         val json = JSONObject().apply {
-            put("requestUuid", "uuid-123")
-            put("id", "att-1")
             put("accountId", "acc-456")
-            put("checkIn", 1000L)
-            put("checkOut", 2000L)
             put("date", 1000L)
-            put("attendanceStatus", AttendanceStatus.PRESENT)
         }
 
-        val constraint = updateStateProcessor.decode(json)
+        val constraint = cancelProcessor.decode(json)
         assertNotNull(constraint)
-        assertEquals(AttendanceBusinessType.ATTENDANCE_UPDATE, constraint.businessType)
-        assertEquals("acc-456", constraint.serverAccountId)
+        assertEquals(AttendanceBusinessType.CANCEL_ATTENDANCE_REQUEST, constraint.businessType)
+        assertEquals("acc-456", constraint.accountId)
+        assertEquals(1000L, constraint.date)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `AttendanceUpdatePayloadProcessor throws exception on missing serverAccountId`() = runTest {
+    fun `CancelAttendanceRequestPayloadProcessor throws exception on missing accountId`() = runTest {
         val json = JSONObject().apply {
             put("accountId", "")
             put("date", 1000L)
         }
-        updateStateProcessor.decode(json)
+        cancelProcessor.decode(json)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `AttendanceUpdatePayloadProcessor throws exception when account not found`() = runTest {
+    fun `CancelAttendanceRequestPayloadProcessor throws exception on invalid date`() = runTest {
         val json = JSONObject().apply {
-            put("requestUuid", "uuid-123")
-            put("id", "att-1")
             put("accountId", "acc-456")
-            put("checkIn", 1000L)
-            put("checkOut", 2000L)
-            put("date", 1000L)
-            put("attendanceStatus", AttendanceStatus.PRESENT)
+            put("date", 0L)
         }
-        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(null)
-
-        updateStateProcessor.decode(json)
+        cancelProcessor.decode(json)
     }
 
     @Test
-    fun `AppPayloadProcessor routes attendance request correctly`() = runTest {
-        val mockAccount = DBAccount(
-            id = 1L,
-            name = "Test User",
-            isUser = true,
-            accountType = 2,
-            serverId = "acc-456"
-        )
-        `when`(accountDataApi.getAccountByServerId("acc-456")).thenReturn(mockAccount)
-
+    fun `AppPayloadProcessor routes cancel attendance request correctly`() = runTest {
         val json = JSONObject().apply {
-            put("requestUuid", "uuid-123")
+            put("requestType", OfflineRequestType.ATTENDANCE)
+            put("businessType", AttendanceBusinessType.CANCEL_ATTENDANCE_REQUEST)
             put("accountId", "acc-456")
             put("date", 1000L)
-            put("requestType", OfflineRequestType.ATTENDANCE)
-            put("businessType", AttendanceBusinessType.ATTENDANCE_UPDATE)
-            put("attendanceStatus", AttendanceStatus.PRESENT)
         }
 
         val constraint = appProcessor.decode(json)
         assertNotNull(constraint)
-        assertEquals(AttendanceBusinessType.ATTENDANCE_UPDATE, constraint.businessType)
+        assertEquals(AttendanceBusinessType.CANCEL_ATTENDANCE_REQUEST, constraint.businessType)
     }
 
     @Test(expected = IllegalStateException::class)

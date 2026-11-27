@@ -19,7 +19,7 @@ internal object TaskSchedulerProvider {
 
         val offlineQueueSyncTask = OfflineQueueSyncTask(
             offlineRequestDataApi = offlineRequestDataApi,
-            processorFactory = { PayloadProcessorProvider.getAppPayloadProcessor(accountDataApi) },
+            processorFactory = { PayloadProcessorProvider.getAppPayloadProcessor() },
             requestExecutor = {
                 RequestExecutorProvider.getAppRequestExecutor(
                     networkMonitor = networkMonitor,

@@ -1,28 +1,42 @@
 package com.example.orgcore.internal.commun.processor
 
-import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
-import com.example.orgcore.internal.attendance.processor.AttendanceUpdatePayloadProcessor
+import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
+import com.example.orgcore.internal.attendance.processor.AttendancePayloadProcessor
+import com.example.orgcore.internal.attendance.processor.CancelAttendanceRequestPayloadProcessor
 import com.example.orgcore.internal.commun.model.RequestConstraint
-import com.example.orgdatabase.public.api.AccountDataApi
 
 /**
  * Provider object for instantiating and wiring up the payload processor hierarchy (App, Domain, Leaf).
  */
 internal object PayloadProcessorProvider {
 
+
     /**
-     * Provides an instance of [AttendanceUpdatePayloadProcessor] for attendance status/cancellation updates.
+     * Provides an instance of [CancelAttendanceRequestPayloadProcessor] for cancel attendance requests.
      */
-    fun getAttendanceUpdatePayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<AttendanceRequestConstraint> {
-        return AttendanceUpdatePayloadProcessor(accountDataApi)
+    fun getCancelAttendanceRequestPayloadProcessor(): PayloadProcessor<CancelAttendanceRequestConstraints> {
+        return CancelAttendanceRequestPayloadProcessor()
+    }
+
+    /**
+     * Provides an instance of [AttendancePayloadProcessor] handling all attendance request constraints.
+     */
+    fun getAttendancePayloadProcessor(): PayloadProcessor<RequestConstraint> {
+        return AttendancePayloadProcessor(
+            cancelAttendancePayloadProcessor = {
+                getCancelAttendanceRequestPayloadProcessor()
+            }
+        )
     }
 
     /**
      * Provides the root [AppPayloadProcessor] instance wired with all domain payload processors.
      */
-    fun getAppPayloadProcessor(accountDataApi: AccountDataApi): PayloadProcessor<RequestConstraint> {
+    fun getAppPayloadProcessor(): PayloadProcessor<RequestConstraint> {
         return AppPayloadProcessor(
-            getAttendanceUpdatePayloadProcessor(accountDataApi)
+            attendancePayloadProcessor = {
+                getAttendancePayloadProcessor()
+            }
         )
     }
 }

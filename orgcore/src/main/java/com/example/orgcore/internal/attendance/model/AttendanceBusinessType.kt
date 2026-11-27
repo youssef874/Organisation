@@ -6,12 +6,14 @@ import androidx.annotation.StringDef
  * Defines the business types/actions for attendance-related network and offline requests.
  */
 @StringDef(
-    AttendanceBusinessType.ATTENDANCE_UPDATE
+    AttendanceBusinessType.CANCEL_ATTENDANCE_REQUEST
 )
 @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER)
 annotation class AttendanceBusinessType {
     companion object {
-        /** Business type for updating an attendance . */
-        const val ATTENDANCE_UPDATE = "attendance_update"
+
+
+        /** Business type for cancelling an attendance request. */
+        const val CANCEL_ATTENDANCE_REQUEST = "cancel_attendance_request"
     }
 }

@@ -15,8 +15,7 @@ import com.example.orgcore.internal.account.Authentication.provider.Authenticati
 import com.example.orgcore.internal.attendance.mapper.toAttendanceFailReason
 import com.example.orgcore.internal.attendance.mapper.toOrgAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
-import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
-import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
+import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.RequestExecutorProvider
 import com.example.orgcore.internal.commun.event.OrgEventListener
@@ -385,17 +384,15 @@ internal class AttendanceProviderDefault(
         val userAccountId = getAuthenticatedUserAccountId() ?: return false
         val serverId = authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
         if (serverId.isBlank()) return false
-        val state = AttendanceStatus.PENDING
         val dbAttendance = accountDataApi.getAttendanceByDate(
             accountId = userAccountId, date = date
         )?:return false
 
 
 
-        val constraint = AttendanceRequestConstraint(
-            businessType = AttendanceBusinessType.ATTENDANCE_UPDATE,
-            attendance = dbAttendance,
-            serverAccountId = serverId
+        val constraint = CancelAttendanceRequestConstraints(
+            accountId = serverId,
+            date = date
         )
 
         val appRequestExecutor = RequestExecutorProvider.getAppRequestExecutor(
@@ -406,12 +403,13 @@ internal class AttendanceProviderDefault(
         )
 
         return when (val result = appRequestExecutor.execute(constraint)) {
+            //TODO refactor events
             is RequestResult.Success -> {
                 val updatedAttendance = result.data as? Attendance
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateSuccess(
                         attendanceAccountId = userAccountId,
-                        newState = updatedAttendance?.attendanceStatus ?: state
+                        newState = updatedAttendance?.attendanceStatus ?: AttendanceStatus.NONE
                     )
                 )
                 true
@@ -421,7 +419,7 @@ internal class AttendanceProviderDefault(
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateOfflineQueued(
                         attendanceAccountId = userAccountId,
-                        state = state
+                        state = dbAttendance.attendanceStatus
                     )
                 )
                 true
@@ -431,7 +429,7 @@ internal class AttendanceProviderDefault(
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
                         attendanceAccountId = userAccountId,
-                        state = state,
+                        state = dbAttendance.attendanceStatus,
                         failReason = result.errorCode.toAttendanceFailReason()
                     )
                 )
@@ -442,7 +440,7 @@ internal class AttendanceProviderDefault(
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
                         attendanceAccountId = userAccountId,
-                        state = state,
+                        state = dbAttendance.attendanceStatus,
                         failReason = AttendanceRequestFailReason.NO_CONNECTION
                     )
                 )
@@ -453,7 +451,7 @@ internal class AttendanceProviderDefault(
                 attendanceEventNotifier.notify(
                     AttendanceStatusUpdateFailed(
                         attendanceAccountId = userAccountId,
-                        state = state,
+                        state = dbAttendance.attendanceStatus,
                         failReason = AttendanceRequestFailReason.DATABASE_ERROR
                     )
                 )

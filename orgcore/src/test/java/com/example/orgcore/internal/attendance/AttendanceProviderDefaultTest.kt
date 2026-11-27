@@ -5,9 +5,7 @@ import com.example.orgcore.api.attendance.event.AttendanceStatusUpdateSuccess
 import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.commun.anyObject
 import com.example.orgcore.internal.account.Authentication.provider.FakeAuthenticationProvider
-import com.example.orgcore.internal.attendance.model.Attendance
-import com.example.orgcore.internal.attendance.model.AttendanceBusinessType
-import com.example.orgcore.internal.attendance.request.FakeAttendanceUpdatesServerRequest
+import com.example.orgcore.internal.attendance.request.FakeCancelAttendanceServerRequest
 import com.example.orgcore.internal.commun.event.FakeOrgEventNotifier
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
@@ -24,6 +22,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.anyBoolean
+import org.mockito.Mockito.anyLong
+import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -209,37 +210,31 @@ class AttendanceProviderDefaultTest {
             attendanceStatus = AttendanceStatus.PRESENT
         )
         `when`(accountDataApi.getAttendanceByDate(localAccountId, date)).thenReturn(mockAttendance)
+        `when`(accountDataApi.getAttendanceByDateAndAccountServerId(date, serverId)).thenReturn(mockAttendance)
         `when`(accountDataApi.getAccountWithDetailsById(localAccountId)).thenReturn(mockAccount)
         `when`(accountDataApi.addAttendance(anyObject())).thenReturn(true)
+        `when`(accountDataApi.updateAttendanceStatus(anyLong(), anyLong(), anyString(), anyBoolean())).thenReturn(true)
 
         val result = attendanceProvider.cancelUserAttendanceRequest(date)
 
         assertTrue(result)
         val event = fakeEventNotifier.lastEvent as? AttendanceStatusUpdateSuccess
         assertEquals(localAccountId, event?.attendanceAccountId)
-        assertEquals(AttendanceStatus.PENDING, event?.newState)
+        assertEquals(AttendanceStatus.PRESENT, event?.newState)
     }
 
     @Test
-    fun `FakeAttendanceUpdatesServerRequest payload contains json structure`() {
-        val attendance = Attendance(
-            serverAccountId = "123",
-            checkIn = 0L,
-            checkOut = 0L,
+    fun `FakeCancelAttendanceServerRequest payload contains json structure`() {
+        val request = FakeCancelAttendanceServerRequest(
+            accountId = "123",
             date = 1500L,
-            attendanceStatus = AttendanceStatus.NONE
-        )
-        val request = FakeAttendanceUpdatesServerRequest(
-            requestUuid = "test-uuid",
-            updatedAttendance = attendance,
-            businessType = AttendanceBusinessType.ATTENDANCE_UPDATE
+            requestUuid = "test-uuid"
         )
         val payload = request.payload()
         assertTrue(payload.contains("\"requestUuid\":\"test-uuid\""))
         assertTrue(payload.contains("\"accountId\":\"123\""))
         assertTrue(payload.contains("\"date\":1500"))
         assertTrue(payload.contains("\"requestType\":\"attendance\""))
-        assertTrue(payload.contains("\"businessType\":\"attendance_update\""))
-        assertTrue(payload.contains("\"attendanceStatus\":\"none\""))
+        assertTrue(payload.contains("\"businessType\":\"cancel_attendance_request\""))
     }
 }

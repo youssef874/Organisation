@@ -7,12 +7,13 @@ import com.example.orgcore.internal.account.Authentication.model.LoginRequestCon
 import com.example.orgcore.internal.account.Authentication.provider.AuthenticationProvider
 import com.example.orgcore.internal.account.Authentication.request.FakeAuthenticationRequest
 import com.example.orgcore.internal.account.model.Account
-import com.example.orgcore.internal.attendance.cache.AttendanceUpdateCache
-import com.example.orgcore.internal.attendance.executor.UpdateAttendanceRequestExecutor
-import com.example.orgcore.internal.attendance.mapper.toAttendance
+import com.example.orgcore.internal.attendance.cache.CancelAttendanceCache
+import com.example.orgcore.internal.attendance.executor.AttendanceRequestExecutor
+import com.example.orgcore.internal.attendance.executor.CancelAttendanceRequestExecutor
 import com.example.orgcore.internal.attendance.model.Attendance
-import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraint
-import com.example.orgcore.internal.attendance.request.FakeAttendanceUpdatesServerRequest
+import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraints
+import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
+import com.example.orgcore.internal.attendance.request.FakeCancelAttendanceServerRequest
 import com.example.orgcore.internal.commun.cache.OfflineQueueCache
 import com.example.orgcore.internal.commun.executor.AppRequestExecutor
 import com.example.orgcore.internal.commun.executor.RequestExecutor
@@ -44,26 +45,41 @@ internal object RequestExecutorProvider {
         )
     }
 
-    private fun getUpdateAttendanceExecutorProvider(
-       networkMonitor: NetworkMonitor,
-       offlineRequestDataApi: OfflineRequestDataApi,
-       accountDataApi: AccountDataApi
-    ): RequestExecutor<Attendance, AttendanceRequestConstraint>{
-        return UpdateAttendanceRequestExecutor(
+    private fun getCancelAttendanceRequestExecutorProvider(
+        networkMonitor: NetworkMonitor,
+        offlineRequestDataApi: OfflineRequestDataApi,
+        accountDataApi: AccountDataApi
+    ): RequestExecutor<Attendance, CancelAttendanceRequestConstraints> {
+        return CancelAttendanceRequestExecutor(
             networkMonitor = networkMonitor,
+            accountDataApi = accountDataApi,
             offlineCache = OfflineQueueCache(
                 offlineRequestDataApi
             ),
             serverRequest = {
-                FakeAttendanceUpdatesServerRequest(
-                    updatedAttendance = it.attendance.toAttendance(
-                        it.serverAccountId
-                    )
+                FakeCancelAttendanceServerRequest(
+                    accountId = it.serverAccountId,
+                    date = it.date,
+                    accountDataApi = accountDataApi
                 )
             },
             cache = {
-                AttendanceUpdateCache(
+                CancelAttendanceCache(
                     accountDataApi
+                )
+            }
+        )
+    }
+
+    private fun getAttendanceExecutorProvider(
+        networkMonitor: NetworkMonitor,
+        offlineRequestDataApi: OfflineRequestDataApi,
+        accountDataApi: AccountDataApi
+    ): RequestExecutor<Attendance, AttendanceRequestConstraints> {
+        return AttendanceRequestExecutor(
+            cancelAttendanceRequestExecutor = {
+                getCancelAttendanceRequestExecutorProvider(
+                    networkMonitor,offlineRequestDataApi, accountDataApi
                 )
             }
         )
@@ -78,11 +94,17 @@ internal object RequestExecutorProvider {
         return AppRequestExecutor(
             authentificationRequestExecutor = {
                 @Suppress("UNCHECKED_CAST")
-                getLoginRequestExecutorProvider(networkMonitor, authenticationProvider) as RequestExecutor<Any, AuthenticationRequestConstraint>
+                getLoginRequestExecutorProvider(
+                    networkMonitor,
+                    authenticationProvider
+                ) as RequestExecutor<Any, AuthenticationRequestConstraint>
             },
             attendanceRequestExecutor = {
-                @Suppress("UNCHECKED_CAST")
-                getUpdateAttendanceExecutorProvider(networkMonitor, offlineRequestDataApi, accountDataApi) as RequestExecutor<Any, AttendanceRequestConstraint>
+                (getAttendanceExecutorProvider(
+                    networkMonitor,
+                    offlineRequestDataApi,
+                    accountDataApi
+                ))
             }
         )
     }
