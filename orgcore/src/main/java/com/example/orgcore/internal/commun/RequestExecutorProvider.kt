@@ -10,7 +10,6 @@ import com.example.orgcore.internal.account.model.Account
 import com.example.orgcore.internal.attendance.cache.CancelAttendanceCache
 import com.example.orgcore.internal.attendance.executor.AttendanceRequestExecutor
 import com.example.orgcore.internal.attendance.executor.CancelAttendanceRequestExecutor
-import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraints
 import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
 import com.example.orgcore.internal.attendance.request.FakeCancelAttendanceServerRequest
@@ -21,6 +20,7 @@ import com.example.orgcore.internal.commun.model.RequestConstraint
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
 import com.example.orgdatabase.public.api.OfflineRequestDataApi
+import com.example.orgdatabase.public.model.DBAttendance
 
 internal object RequestExecutorProvider {
 
@@ -49,7 +49,7 @@ internal object RequestExecutorProvider {
         networkMonitor: NetworkMonitor,
         offlineRequestDataApi: OfflineRequestDataApi,
         accountDataApi: AccountDataApi
-    ): RequestExecutor<Attendance, CancelAttendanceRequestConstraints> {
+    ): RequestExecutor<DBAttendance, CancelAttendanceRequestConstraints> {
         return CancelAttendanceRequestExecutor(
             networkMonitor = networkMonitor,
             accountDataApi = accountDataApi,
@@ -75,11 +75,11 @@ internal object RequestExecutorProvider {
         networkMonitor: NetworkMonitor,
         offlineRequestDataApi: OfflineRequestDataApi,
         accountDataApi: AccountDataApi
-    ): RequestExecutor<Attendance, AttendanceRequestConstraints> {
+    ): RequestExecutor<Any, AttendanceRequestConstraints> {
         return AttendanceRequestExecutor(
             cancelAttendanceRequestExecutor = {
                 getCancelAttendanceRequestExecutorProvider(
-                    networkMonitor,offlineRequestDataApi, accountDataApi
+                    networkMonitor, offlineRequestDataApi, accountDataApi
                 )
             }
         )

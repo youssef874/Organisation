@@ -379,13 +379,8 @@ internal class AttendanceProviderDefault(
             TAG,
             "$CLASS_NAME|cancelUserAttendanceRequest|date: $date"
         )
-        val userAccountId = getAuthenticatedUserAccountId() ?: return false
         val serverId = authenticationProvider.authenticatedUserServerIdDataStoreItemProvider.getData("")
         if (serverId.isBlank()) return false
-        val dbAttendance = accountDataApi.getAttendanceByDate(
-            accountId = userAccountId, date = date
-        )?:return false
-
 
 
         val constraint = CancelAttendanceRequestConstraints(
@@ -400,6 +395,7 @@ internal class AttendanceProviderDefault(
             accountDataApi = accountDataApi
         )
 
+        val userAccountId = getAuthenticatedUserAccountId() ?: return false
         return when (val result = appRequestExecutor.execute(constraint)) {
             is RequestResult.Success -> {
                 attendanceEventNotifier.notify(

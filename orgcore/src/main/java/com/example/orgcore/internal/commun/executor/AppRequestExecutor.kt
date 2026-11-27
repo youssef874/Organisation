@@ -1,7 +1,6 @@
 package com.example.orgcore.internal.commun.executor
 
 import com.example.orgcore.internal.account.Authentication.model.AuthenticationRequestConstraint
-import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.AttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
 import com.example.orgcore.internal.commun.model.RequestConstraint
@@ -10,7 +9,7 @@ import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 
 internal class AppRequestExecutor(
     private val authentificationRequestExecutor: (AuthenticationRequestConstraint) -> RequestExecutor<Any, AuthenticationRequestConstraint>,
-    private val attendanceRequestExecutor: (AttendanceRequestConstraints) -> RequestExecutor<Attendance, AttendanceRequestConstraints>
+    private val attendanceRequestExecutor: (AttendanceRequestConstraints) -> RequestExecutor<Any, AttendanceRequestConstraints>
 ): RequestExecutor<Any, RequestConstraint> {
 
     companion object {

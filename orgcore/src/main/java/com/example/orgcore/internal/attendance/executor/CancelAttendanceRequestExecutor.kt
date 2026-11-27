@@ -2,6 +2,7 @@ package com.example.orgcore.internal.attendance.executor
 
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.attendance.mapper.toAttendance
+import com.example.orgcore.internal.attendance.mapper.toDBAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
 import com.example.orgcore.internal.attendance.model.CancelAttendanceRequestConstraints
 import com.example.orgcore.internal.commun.LoggerHelper
@@ -12,6 +13,7 @@ import com.example.orgcore.internal.commun.model.ServerRequestErrorType
 import com.example.orgcore.internal.commun.request.ServerRequest
 import com.example.orgcore.internal.network.NetworkMonitor
 import com.example.orgdatabase.public.api.AccountDataApi
+import com.example.orgdatabase.public.model.DBAttendance
 import com.example.orgdatabase.public.model.DBOfflineRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,14 +25,14 @@ internal class CancelAttendanceRequestExecutor(
     private val offlineCache: OfflineCache<DBOfflineRequest>,
     private val serverRequest: (CancelAttendanceRequestConstraints)->ServerRequest<Attendance>,
     private val cache: (CancelAttendanceRequestConstraints)->OfflineCache<Attendance>
-): RequestExecutor<Attendance, CancelAttendanceRequestConstraints> {
+): RequestExecutor<DBAttendance, CancelAttendanceRequestConstraints> {
 
     companion object {
         private const val CLASS_NAME = "CancelAttendanceRequestExecutor"
         private const val TAG = "ATTENDANCE"
     }
 
-    override suspend fun execute(constraint: CancelAttendanceRequestConstraints): RequestResult<Attendance> {
+    override suspend fun execute(constraint: CancelAttendanceRequestConstraints): RequestResult<DBAttendance> {
         LoggerHelper.logger.i(
             TAG,
             "$CLASS_NAME|execute|constraint: $constraint"
@@ -40,6 +42,9 @@ internal class CancelAttendanceRequestExecutor(
         return withContext(Dispatchers.IO){
             require(constraint.date > 0L) { "Invalid or missing date: ${constraint.date}" }
             require(constraint.accountId.isNotBlank()) { "Invalid or missing accountId: ${constraint.accountId}" }
+
+            val account = accountDataApi.getAccountByServerId(constraint.accountId)
+                ?: return@withContext RequestResult.CacheFailure
 
             if (!networkMonitor.isConnected()){
                 LoggerHelper.logger.w(TAG, "$CLASS_NAME|execute|network disconnected, offline queueing request")
@@ -59,12 +64,16 @@ internal class CancelAttendanceRequestExecutor(
                         val attendance = accountDataApi
                             .getAttendanceByDateAndAccountServerId(date = constraint.date, accountServerId = constraint.serverAccountId)
                             ?: return@withContext RequestResult.CacheFailure
-                        cancelAttendanceHandler.cache(
+                        val cacheResult = cancelAttendanceHandler.cache(
                             attendance.toAttendance(
                                 constraint.serverAccountId
                             )
                         )
-                        RequestResult.OfflineQueued
+                        if (cacheResult) {
+                            RequestResult.OfflineQueued
+                        } else {
+                            RequestResult.CacheFailure
+                        }
                     }else{
                         LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|failed to cache offline request")
                         RequestResult.CacheFailure
@@ -89,7 +98,9 @@ internal class CancelAttendanceRequestExecutor(
                             val cacheResult = cancelAttendanceHandler.cache(networkResult.data)
                             if (cacheResult) {
                                 LoggerHelper.logger.i(TAG, "$CLASS_NAME|execute|cache update succeeded")
-                                RequestResult.Success(networkResult.data)
+                                val dbAttendance = accountDataApi.getAttendanceByDate(account.id, constraint.date)
+                                    ?: networkResult.data.toDBAttendance(account.id)
+                                RequestResult.Success(dbAttendance)
                             } else {
                                 LoggerHelper.logger.e(TAG, "$CLASS_NAME|execute|cache update failed")
                                 RequestResult.CacheFailure
