@@ -12,9 +12,9 @@ data class DBAttendance(
     val attendanceStatus: @AttendanceStatusType String,
     val requestReason: String? = null,
     /**
-     * True if the request was handled successfully by the server but the supervisor has not accepted or rejected yet, otherwise false.
+     * The requested attendance status if a request is in progress, otherwise null.
      */
-    val isRequestInProgress: Boolean = false
+    val requestedStatus: String? = null
 )
 
 @StringDef(

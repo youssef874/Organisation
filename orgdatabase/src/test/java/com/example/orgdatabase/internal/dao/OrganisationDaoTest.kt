@@ -107,7 +107,7 @@ internal class OrganisationDaoTest {
                 date = 10000L,
                 attendanceStatus = AttendanceEntity.STATUS_PRESENT,
                 requestReason = "None",
-                isRequestInProgress = false
+                requestedStatus = null
             )
         )
 
@@ -127,14 +127,14 @@ internal class OrganisationDaoTest {
                 checkOut = 2000L,
                 date = 10000L,
                 attendanceStatus = AttendanceEntity.STATUS_ABSENT,
-                isRequestInProgress = true
+                requestedStatus = AttendanceEntity.STATUS_PRESENT
             )
         )
 
         val records = attendanceDao.observeAttendanceByAccountId(accountId).first()
         assertEquals(1, records.size)
         assertEquals(AttendanceEntity.STATUS_ABSENT, records[0].attendanceStatus)
-        assertTrue(records[0].isRequestInProgress)
+        assertEquals(AttendanceEntity.STATUS_PRESENT, records[0].requestedStatus)
         assertEquals( id , records.first().id)
     }
 
@@ -172,16 +172,16 @@ internal class OrganisationDaoTest {
                 checkOut = 200L,
                 date = targetDate,
                 attendanceStatus = AttendanceEntity.STATUS_ABSENT,
-                isRequestInProgress = false
+                requestedStatus = null
             )
         )
 
-        val updatedRows = attendanceDao.updateAttendanceStatus(accountId, targetDate, AttendanceEntity.STATUS_PRESENT, true)
+        val updatedRows = attendanceDao.updateAttendanceStatus(accountId, targetDate, AttendanceEntity.STATUS_PRESENT, AttendanceEntity.STATUS_PRESENT)
         assertEquals(1, updatedRows)
 
         val record = attendanceDao.getAttendanceByAccountAndDate(accountId, targetDate)
         assertEquals(AttendanceEntity.STATUS_PRESENT, record?.attendanceStatus)
-        assertEquals(true, record?.isRequestInProgress)
+        assertEquals(AttendanceEntity.STATUS_PRESENT, record?.requestedStatus)
     }
 
     @Test

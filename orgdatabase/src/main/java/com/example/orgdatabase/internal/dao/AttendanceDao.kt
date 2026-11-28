@@ -52,8 +52,8 @@ internal interface AttendanceDao : BaseDao<AttendanceEntity> {
     @Query("SELECT * FROM ${AttendanceEntity.TABLE_NAME} WHERE ${AttendanceEntity.COLUMN_ACCOUNT_ID} = :accountId AND ${AttendanceEntity.COLUMN_DATE} BETWEEN :startDate AND :endDate")
     fun getAttendancesByDateRangePaged(accountId: Long, startDate: Long, endDate: Long): PagingSource<Int, AttendanceEntity>
 
-    @Query("UPDATE ${AttendanceEntity.TABLE_NAME} SET ${AttendanceEntity.COLUMN_ATTENDANCE_STATUS} = :status, ${AttendanceEntity.COLUMN_IS_REQUEST_IN_PROGRESS} = :isRequestInProgress WHERE ${AttendanceEntity.COLUMN_ACCOUNT_ID} = :accountId AND ${AttendanceEntity.COLUMN_DATE} = :date")
-    suspend fun updateAttendanceStatus(accountId: Long, date: Long, status: String, isRequestInProgress: Boolean = false): Int
+    @Query("UPDATE ${AttendanceEntity.TABLE_NAME} SET ${AttendanceEntity.COLUMN_ATTENDANCE_STATUS} = :status, ${AttendanceEntity.COLUMN_REQUESTED_STATUS} = :requestedStatus WHERE ${AttendanceEntity.COLUMN_ACCOUNT_ID} = :accountId AND ${AttendanceEntity.COLUMN_DATE} = :date")
+    suspend fun updateAttendanceStatus(accountId: Long, date: Long, status: String, requestedStatus: String? = null): Int
 
     @Query("""
         SELECT COUNT(*) FROM ${AttendanceEntity.TABLE_NAME} 

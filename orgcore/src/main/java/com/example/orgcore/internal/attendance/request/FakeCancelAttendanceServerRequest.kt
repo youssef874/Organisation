@@ -1,6 +1,7 @@
 package com.example.orgcore.internal.attendance.request
 
 import com.example.orgcore.SDKComponent
+import com.example.orgcore.api.attendance.model.AttendanceStatus
 import com.example.orgcore.api.model.NetworkResult
 import com.example.orgcore.internal.attendance.mapper.toAttendance
 import com.example.orgcore.internal.attendance.model.Attendance
@@ -37,14 +38,17 @@ internal class FakeCancelAttendanceServerRequest(
         }
         return if (responseCode == 200) {
             val attendance = api.getAttendanceByDateAndAccountServerId(
-                accountServerId = accountId,
-                date = date
+                date = date,
+                accountServerId = accountId
             )
                 ?: return NetworkResult.Error(
                     ServerRequestErrorType.UNKNOWN_ERROR,
                     "No attendance found"
                 )
-            NetworkResult.Success(attendance.toAttendance(accountId))
+            NetworkResult.Success(
+                attendance.toAttendance(accountId)
+                    .copy(requestedStatus = AttendanceStatus.NONE)
+            )
         } else {
             NetworkResult.Error(
                 code = responseCode,

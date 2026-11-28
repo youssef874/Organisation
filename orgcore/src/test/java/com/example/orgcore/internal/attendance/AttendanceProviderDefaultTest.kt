@@ -22,7 +22,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.anyBoolean
 import org.mockito.Mockito.anyLong
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.verify
@@ -213,7 +212,7 @@ class AttendanceProviderDefaultTest {
         `when`(accountDataApi.getAttendanceByDateAndAccountServerId(date, serverId)).thenReturn(mockAttendance)
         `when`(accountDataApi.getAccountWithDetailsById(localAccountId)).thenReturn(mockAccount)
         `when`(accountDataApi.addAttendance(anyObject())).thenReturn(true)
-        `when`(accountDataApi.updateAttendanceStatus(anyLong(), anyLong(), anyString(), anyBoolean())).thenReturn(true)
+        `when`(accountDataApi.updateAttendanceStatus(anyLong(), anyLong(), anyString(), anyObject())).thenReturn(true)
 
         val result = attendanceProvider.cancelUserAttendanceRequest(date)
 

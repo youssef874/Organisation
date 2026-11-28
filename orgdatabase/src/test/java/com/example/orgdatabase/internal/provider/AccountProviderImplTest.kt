@@ -235,16 +235,16 @@ internal class AccountProviderImplTest {
                 checkOut = 200L,
                 date = date,
                 attendanceStatus = AttendanceStatusType.ABSENT,
-                isRequestInProgress = false
+                requestedStatus = null
             )
         )
 
-        val success = accountProvider.updateAttendanceStatus(accountId, date, AttendanceStatusType.PRESENT, true)
+        val success = accountProvider.updateAttendanceStatus(accountId, date, AttendanceStatusType.PRESENT, AttendanceStatusType.PRESENT)
         assertTrue(success)
 
         val fetched = accountProvider.getAttendanceByDate(accountId, date)
         assertEquals(AttendanceStatusType.PRESENT, fetched?.attendanceStatus)
-        assertEquals(true, fetched?.isRequestInProgress)
+        assertEquals(AttendanceStatusType.PRESENT, fetched?.requestedStatus)
     }
 
     @Test

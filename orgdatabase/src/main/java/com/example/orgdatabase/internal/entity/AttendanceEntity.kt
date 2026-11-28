@@ -41,10 +41,10 @@ internal data class AttendanceEntity(
     @ColumnInfo(name = COLUMN_REQUEST_REASON)
     val requestReason: String? = null,
     /**
-     * True if the request was handled successfully by the server but the supervisor has not accepted or rejected yet, otherwise false.
+     * The requested attendance status if a request is in progress, otherwise null.
      */
-    @ColumnInfo(name = COLUMN_IS_REQUEST_IN_PROGRESS)
-    val isRequestInProgress: Boolean = false
+    @ColumnInfo(name = COLUMN_REQUESTED_STATUS)
+    val requestedStatus: String? = null
 ) {
     companion object {
         const val TABLE_NAME = "attendance"
@@ -56,7 +56,7 @@ internal data class AttendanceEntity(
         const val COLUMN_DATE = "date"
         const val COLUMN_ATTENDANCE_STATUS = "attendance_status"
         const val COLUMN_REQUEST_REASON = "request_reason"
-        const val COLUMN_IS_REQUEST_IN_PROGRESS = "is_request_in_progress"
+        const val COLUMN_REQUESTED_STATUS = "requested_status"
 
         // Status values
         const val STATUS_ABSENT = "absent"

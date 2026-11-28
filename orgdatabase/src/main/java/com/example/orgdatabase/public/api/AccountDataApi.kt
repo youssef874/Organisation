@@ -101,11 +101,11 @@ class AccountDataApi(private val context: Context) {
      * @param accountId The ID of the account.
      * @param date The timestamp/epoch date for which to update the status.
      * @param status The new attendance status, restricted to valid values defined in [AttendanceStatusType].
-     * @param isRequestInProgress Whether the request is in progress (default false).
+     * @param requestedStatus The requested attendance status if in progress (default null).
      * @return `true` if the update was successful, `false` otherwise.
      */
-    suspend fun updateAttendanceStatus(accountId: Long, date: Long, @AttendanceStatusType status: String, isRequestInProgress: Boolean = false): Boolean =
-        DataProvider.getAccountProvider(context).updateAttendanceStatus(accountId, date, status, isRequestInProgress)
+    suspend fun updateAttendanceStatus(accountId: Long, date: Long, @AttendanceStatusType status: String, requestedStatus: String? = null): Boolean =
+        DataProvider.getAccountProvider(context).updateAttendanceStatus(accountId, date, status, requestedStatus)
 
     /**
      * Retrieves all attendance records for a specific account.

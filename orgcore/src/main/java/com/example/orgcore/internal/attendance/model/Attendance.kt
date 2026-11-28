@@ -11,5 +11,6 @@ data class Attendance(
     val checkOut: Long,
     val date: Long,
     val attendanceStatus: @AttendanceStatus String,
-    val requestReason: String? = null
+    val requestReason: String? = null,
+    val requestedStatus: @AttendanceStatus String? = null
 )

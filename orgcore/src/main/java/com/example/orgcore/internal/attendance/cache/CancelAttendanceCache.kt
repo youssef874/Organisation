@@ -31,7 +31,7 @@ internal class CancelAttendanceCache(
                 accountId = account.id,
                 date = data.date,
                 status = data.attendanceStatus,
-                isRequestInProgress = true
+                requestedStatus = data.requestedStatus
             )
         } catch (e: Exception) {
             LoggerHelper.logger.e(TAG, "$CLASS_NAME|cache|Error cancelling attendance in database: ${e.message}")

@@ -11,7 +11,7 @@ import com.example.orgdatabase.public.model.DBAttendance
  *
  * @param accountId The resolved local database primary key ID of the account.
  */
-internal fun Attendance.toDBAttendance(accountId: Long,isRequestInProgress: Boolean = false): DBAttendance {
+internal fun Attendance.toDBAttendance(accountId: Long): DBAttendance {
     return DBAttendance(
         accountId = accountId,
         serverId = id,
@@ -20,18 +20,20 @@ internal fun Attendance.toDBAttendance(accountId: Long,isRequestInProgress: Bool
         date = date,
         attendanceStatus = attendanceStatus,
         requestReason = requestReason,
-        isRequestInProgress = isRequestInProgress
+        requestedStatus = requestedStatus
     )
 }
 
 internal fun DBAttendance.toAttendance(serverAccountId: String): Attendance {
     return Attendance(
         serverAccountId = serverAccountId,
+        id = serverId ?: id.toString(),
         checkIn = checkIn,
         checkOut = checkOut,
         date = date,
         attendanceStatus = attendanceStatus,
-        requestReason = requestReason
+        requestReason = requestReason,
+        requestedStatus = requestedStatus
     )
 }
 
@@ -46,7 +48,7 @@ fun DBAttendance.toOrgAttendance(): OrgAttendance {
         checkIn = checkIn,
         attendanceStatus = attendanceStatus,
         accountId = accountId,
-        isRequestInProgress = isRequestInProgress
+        requestedStatus = requestedStatus
     )
 }
 
